@@ -3,6 +3,9 @@ source("scripts/libraries.R")
 
 #load data
 data <- read.transactions("data/ElectronidexTransactions2017.csv", format = "basket", sep = ",")
+data1 <- read.csv("data/ElectronidexTransactions2017.csv", header = FALSE)
+#how to load pdf??
+
 
 #preliminary data investigation
 summary(data) #summary of dataset
@@ -46,3 +49,6 @@ ItemRules %>% inspect()
 ##Results visualisation
 plot(basketRules)
 plot(basketRules[1:10], method="graph", control = list( type = "items")) 
+
+#Shiny app
+ruleExplorer(basketRules)
