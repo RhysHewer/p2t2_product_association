@@ -49,18 +49,68 @@ monitor.replace <- c("Acer Monitor" = "monitor", "LG Monitor" = "monitor", "ASUS
                      "Sceptre Monitor" = "monitor", "ViewSonic Monitor" = "monitor", "AOC Monitor" = "monitor",
                      "HP Monitor" = "monitor")
 
-mice.replace <- c(
-        
-        
-)
+mice.replace <- c("3-Button Mouse" = "mouse", "Logitech Wireless Mouse" = "mouse", 
+                  "Microsoft Basic Optical Mouse" = "mouse", "Logitech 3-button Mouse" = "mouse",
+                  "Redragon Gaming Mouse" = "mouse", "HP Wireless Mouse" = "mouse", "Generic Black 3-Button" = "mouse",
+                  "Wireless Portable Mouse" = "mouse", "Gaming Mouse Professional" = "mouse", 
+                  "Slim Wireless Mouse" = "mouse")
 
+keyboard.replace <- c("HP USB Keyboard" = "keyboard", "Logitech Wireless Keyboard" = "keyboard", 
+                      "Rii LED Keyboard" = "keyboard", "Logitech Keyboard" = "keyboard", 
+                      "Backlit LED Gaming Keyboard" = "keyboard", "Dell Wired Keyboard" = "keyboard",
+                      "Apple Wired Keyboard" = "keyboard", "Apple Wireless Keyboard" = "keyboard", 
+                      "Apple Magic Keyboard" = "keyboard")
+
+mousekeyboard.replace <- c("Logitech MK550 Wireless Wave Keyboard and Mouse Combo" = "mousekeyboard", 
+                           "Logitech Desktop MK120 Mouse and keyboard Combo" = "mousekeyboard",
+                           "Logitech MK270 Wireless Keyboard and Mouse Combo" = "mousekeyboard",       
+                           "Dell KM117 Wireless Keyboard & Mouse" = "mousekeyboard",
+                           "EagleTec Wireless Combo Keyboard and Mouse" = "mousekeyboard",
+                           "Microsoft Wireless Comfort Keyboard and Mouse" = "mousekeyboard",         
+                           "Microsoft Wireless Desktop Keyboard and Mouse" = "mousekeyboard",
+                           "Rii LED Gaming Keyboard & Mouse Combo" = "mousekeyboard",                
+                           "Logitech MK360 Wireless Keyboard and Mouse Combo" = "mousekeyboard")
+
+compheadphones.replace <- c("Computer Headphones" = "compheadphones", "Zombie Gaming Headset" = "compheadphones",                      
+                            "Logitech ClearChat Headset" = "compheadphones", 
+                            "Panasonic On-Ear Stereo Headphones RP-HT21" = "compheadphones", 
+                           "PC Gaming Headset" = "compheadphones", "Kensington Headphones" = "compheadphones",                      
+                           "Logitech Stereo Headset" = "compheadphones", "Koss Home Headphones" = "compheadphones",
+                           "Microsoft Headset" = "compheadphones", "Ailihen Stereo Headphones" = "compheadphones",                 
+                           "XIBERIA Gaming Headset" = "compheadphones")
+        
+activeheadphones.replace <- c("Apple Earpods" = "activeheadphones", "Monster Beats By Dr Dre" = "activeheadphones",                   
+                              "Otium Wireless Sports Bluetooth Headphones" = "activeheadphones", 
+                              "Panasonic In-Ear Headphone" = "activeheadphones", 
+                              "APIE Bluetooth Headphones" = "activeheadphones",
+                              "Philips Flexible Earhook Headphones" = "activeheadphones") 
+        
+compcords.replace <- c("HDMI Cable 6ft" = "compcord", "Ethernet Cable" = "compcord", 
+                       "Etekcity Power Extension Cord Cable" = "compcord", "Audio Cable" = "compcord",
+                       "VGA Monitor Cable" = "compcord", "iPhone Charger Cable" = "compcord",               
+                       "HDMI Adapter" = "compcord", "USB Cable" = "compcord", "Samsung Charging Cable" = "compcord")        
+        
+accessories.replace <- c("Microsoft Office Home and Student 2016" = "accessories", "Computer Game" = "accessories",
+                         "Belkin Mouse Pad" = "accessories", "Large Mouse Pad" = "accessories")
+
+speakers.replace <- c("Cambridge Bluetooth Speaker" = "speaker", "JBL Splashproof Portable Bluetooth Speaker" = "speaker",
+                      "DOSS Touch Wireless Bluetooth" = "speaker", "Logitech Multimedia Speakers" = "speaker",             
+                      "Rokono Mini Speaker" = "speaker", "Cyber Acoustics" = "speaker",                           
+                      "Bose Companion Speakers" = "speaker", "Mackie CR Speakers" = "speaker",                        
+                      "Sonos" = "speaker")               
 
 #string replacement function
 typePrep <- as.data.frame(sapply(prodData, function(x) str_replace_all(x, laptop.replace)))
 typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, desktop.replace)))
 typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, monitor.replace)))
-
-
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, mice.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, keyboard.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, mousekeyboard.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, compheadphones.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, activeheadphones.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, compcords.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, accessories.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, speakers.replace)))
 
 
 #CSV creation/re-import
