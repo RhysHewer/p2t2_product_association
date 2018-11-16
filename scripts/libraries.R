@@ -7,3 +7,7 @@ library(tibble)
 library(arules)
 library(arulesViz)
 library(caret)
+library(readr)
+library(pdftools)
+library(stringr)
+library(treemap) # take a look at this as a comparison tool.

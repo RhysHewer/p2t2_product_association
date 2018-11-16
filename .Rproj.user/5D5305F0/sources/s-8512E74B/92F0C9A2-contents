@@ -1,0 +1,37 @@
+library(dplyr)
+library(arules)
+library(tidyr)
+library(readr)
+library(arules)
+
+###replaceing product with product type
+data <- read.csv("ElectronidexTransactions2017.csv", header = FALSE)
+summary(data)
+
+laptop.replace <- c("iMac" = "laptop", "HP Laptop" = "laptop", "Apple MacBook Air" = "laptop")
+earphone.replace <- c("Apple Earpods" = "earphones")
+desktop.replace <- c("Lenovo Desktop Computer" = "desktop", "Dell Desktop" = "desktop", "CYBERPOWER Gamer Desktop" = "desktop")
+
+data <- as.data.frame(sapply(data, function(x) str_replace_all(x, laptop.replace))) # works!
+data <- as.data.frame(sapply(data, function(x) str_replace_all(x, earphone.replace)))
+data <- as.data.frame(sapply(data, function(x) str_replace_all(x, desktop.replace)))
+
+
+write.table(data, file = "data.csv", sep=",", row.names = FALSE, col.names = FALSE)
+data1 <- read.transactions("data.csv", format = "basket", sep=",")
+inspect(data1[1:10])
+
+summary(data1)
+
+### Loading PDF
+install.packages("pdftools")
+library(pdftools)
+text <- pdf_text("ElectronidexItems2017.pdf")
+text2 <- strsplit(text, "\n")
+head(text2[[1]])
+text2 <- text2 %>% unlist(recursive = TRUE)
+
+text3 <- gsub("\r", "", text2)
+text3
+trimws(text3, "l")
+text4 <- text3 %>% as.data.frame()
