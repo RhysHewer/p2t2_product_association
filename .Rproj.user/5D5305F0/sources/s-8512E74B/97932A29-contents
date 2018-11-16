@@ -32,13 +32,15 @@ printers.list <- prod.list[108:112,1] %>% as.character() %>% trimws("l")
 printink.list <- prod.list[114:118,1] %>% as.character() %>% trimws("l")
 compstands.list <- prod.list[120:124,1] %>% as.character() %>% trimws("l")
 comptablets.list <- prod.list[126:130,1] %>% as.character() %>% trimws("l")
-extdrives <- prod.list[132:136,1] %>% as.character() %>% trimws("l")
-smarthome <- prod.list[138:142,1] %>% as.character() %>% trimws("l")
+extdrives.list <- prod.list[132:136,1] %>% as.character() %>% trimws("l")
+smarthome.list <- prod.list[138:142,1] %>% as.character() %>% trimws("l")
 
 #string replacement lists
 laptop.replace <- c("LG Touchscreen Laptop" = "laptop", "Acer Aspire" = "laptop", "HP Laptop" = "laptop",
                     "Apple Macbook Pro" = "laptop", "Apple MacBook Air" = "laptop", "Dell Laptop" = "laptop",
-                    "Alienware AW17R4-7345SLV-PUS 17\" Laptop" = "laptop", "HP Notebook Touchscreen Laptop PC" = "laptop")
+                    "Alienware AW17R4-7345SLV-PUS 17\" Laptop" = "laptop", "HP Notebook Touchscreen Laptop PC" = "laptop",
+                    "Alienware Laptop" = "laptop", "Apple MacBook Pro" = "laptop", 
+                    "Eluktronics Pro Gaming Laptop" = "laptop", "ASUS Chromebook" = "laptop")
 
 desktop.replace <- c("Lenovo Desktop Computer" = "desktop", "iMac" = "desktop", "HP Desktop" = "desktop",
                      "ASUS Desktop" = "desktop", "Dell Desktop" = "desktop", "Intel Desktop" = "desktop",
@@ -83,7 +85,11 @@ activeheadphones.replace <- c("Apple Earpods" = "activeheadphones", "Monster Bea
                               "Otium Wireless Sports Bluetooth Headphones" = "activeheadphones", 
                               "Panasonic In-Ear Headphone" = "activeheadphones", 
                               "APIE Bluetooth Headphones" = "activeheadphones",
-                              "Philips Flexible Earhook Headphones" = "activeheadphones") 
+                              "Philips Flexible Earhook Headphones" = "activeheadphones",
+                              "Panasonic On-Ear Stereo Headphones" = "activeheadphones",
+                              "APIE Bluetooth Headphone" = "activeheadphones",
+                              "Otium Wireless Sports Bluetooth Headphone" = "activeheadphones",
+                              "Philips Flexible Earhook Headphone" = "activeheadphones") 
         
 compcords.replace <- c("HDMI Cable 6ft" = "compcord", "Ethernet Cable" = "compcord", 
                        "Etekcity Power Extension Cord Cable" = "compcord", "Audio Cable" = "compcord",
@@ -97,7 +103,29 @@ speakers.replace <- c("Cambridge Bluetooth Speaker" = "speaker", "JBL Splashproo
                       "DOSS Touch Wireless Bluetooth" = "speaker", "Logitech Multimedia Speakers" = "speaker",             
                       "Rokono Mini Speaker" = "speaker", "Cyber Acoustics" = "speaker",                           
                       "Bose Companion Speakers" = "speaker", "Mackie CR Speakers" = "speaker",                        
-                      "Sonos" = "speaker")               
+                      "Sonos" = "speaker")    
+
+printers.replace <- c("Epson Printer" = "printer", "HP Wireless Printer" = "printer", 
+                      "Canon Office Printer" = "printer", "Brother Printer" = "printer", "DYMO Label Manker" = "printer") 
+
+printink.replace <- c("Epson Black Ink" = "printink", "HP Black & Tri-color Ink" = "printink", "Canon Ink" = "printink",
+                      "Brother Printer Toner" = "printink", "DYMO Labeling Tape" = "printink", 
+                      "printer Toner" = "printink")    
+
+compstands.replace <- c("Halter Acrylic Monitor Stand" = "compstand", "Height-Adjustable Standing Desk"  = "compstand",
+                        "Multi Media Stand"  = "compstand", "Halter Mesh Metal Monitor Stand"  = "compstand",
+                        "Full Motion Monitor Mount"  = "compstand")
+
+comptablets.replace <- c("iPad" = "tablet", "iPad Pro" = "tablet", "Fire HD Tablet" = "tablet",
+                         "Samsung Galaxy Tab" = "tablet", "Kindle" = "tablet", "tabletlet" = "tablet", 
+                         "tablet Pro" = "tablet")
+
+extdrives.replace <- c("1TB Portable External Hard Drive" = "extdrive", "2TB Portable External Hard Drive" = "extdrive",
+                       "5TB Desktop Hard Drive" = "extdrive", "Slim 2TB Portable External Hard Drive" = "extdrive",
+                       "3TB Portable External Hard Drive" = "extdrive", "Slim extdrive" = "extdrive")  
+
+smarthome.replace <- c("Apple TV" = "smarthome", "Google Home" = "smarthome", "Smart Light Bulb" = "smarthome",
+                       "Fire TV Stick" = "smarthome", "Roku Express" = "smarthome")
 
 #string replacement function
 typePrep <- as.data.frame(sapply(prodData, function(x) str_replace_all(x, laptop.replace)))
@@ -111,6 +139,17 @@ typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, active
 typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, compcords.replace)))
 typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, accessories.replace)))
 typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, speakers.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, printers.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, printink.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, compstands.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, comptablets.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, extdrives.replace)))
+typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, smarthome.replace)))
+
+#not all products were included on product type list
+# "Alienware Laptop", "Apple MacBook Pro", "Eluktronics Pro Gaming Laptop", "Panasonic On-Ear Stereo Headphones", 
+# "tabletlet", "APIE Bluetooth Headphone", "ASUS Chromebook", "Otium Wireless Sports Bluetooth Headphone",  "printer Toner" 
+# "Philips Flexible Earhook Headphone", "Slim extdrive", "tablet Pro"  - added to relevant product replacement lists    
 
 
 #CSV creation/re-import
