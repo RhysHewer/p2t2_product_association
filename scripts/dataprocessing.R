@@ -158,48 +158,10 @@ typeData <- read.transactions("output/typePrep.csv", format = "basket", sep=",")
 inspect(typeData[1:10])
 summary(typeData)
 
-#preliminary data investigation
-summary(data) #summary of dataset
-inspect(data[1:5]) #inspect specific transaction sets
-itemLabels(data) %>% sample(10) # random sample of 10 item names
-size(data[1:10])
-size(data[])
-summary(itemFrequency(data)) # summary of support values of dataset
-dimnames(data)
-inspect(data)
 
-data %>% col.names() %>% head(5)
 
-#zero items transaction (return to this!!)
+#Outputs
+save(transData, file = "output/transData.RDS")
+save(prodData, file = "output/prodData.RDS")
+save(typeData, file = "output/typeData.RDS")
 
-#preliminary visualisation
-itemFrequencyPlot(data, support = 0.05)
-itemFrequencyPlot(data, topN = 10, cex.names = 0.7, col = brewer.pal(8, 'Dark2'))
-
-data %>% sample(25) %>% image()
-
-#apriori package
-basketRules <- apriori(data, parameter = list(supp = 0.01, conf = 0.20, minlen = 2))
-basketRules
-
-basketRules %>% sort(by = "lift") %>% head(5) %>% inspect()
-basketRules %>% sort(by = "lift") %>% tail(5) %>% inspect()
-
-basketRules %>% sort(by = "support") %>% head(5) %>% inspect()
-basketRules %>% sort(by = "support") %>% tail(5) %>% inspect()
-
-basketRules %>% sort(by = "confidence") %>% head(5) %>% inspect()
-basketRules %>% sort(by = "confidence") %>% tail(5) %>% inspect()
-
-inspect(basketRules[1:5])
-summary(basketRules)
-
-ItemRules <- basketRules %>% subset(items %in% "ASUS Chromebook")
-ItemRules %>% inspect()
-
-##Results visualisation
-plot(basketRules)
-plot(basketRules[1:10], method="graph", control = list( type = "items")) 
-
-#Shiny app
-ruleExplorer(basketRules)

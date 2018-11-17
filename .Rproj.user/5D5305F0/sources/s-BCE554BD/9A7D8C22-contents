@@ -1,0 +1,295 @@
+
+#Load Libraries
+source("scripts/libraries.R")
+
+#Load Data
+data.ex.GA <- read.csv2("data/existing_Gender_Age_Instore.csv", stringsAsFactors = FALSE)
+data.ex.RP <- read.csv2("data/existing_RelativePice_environmentalImpact_Durability.csv", stringsAsFactors = FALSE)
+data.new.GA <- read.csv2("data/newproduct_Gender_Age_Instore.csv", stringsAsFactors = FALSE)
+data.new.RP <- read.csv2("data/newproduct_RelativePice_environmentalImpact_Durability.csv", stringsAsFactors = FALSE)
+
+str(data.ex.GA)
+
+#check if features match
+names(data.ex.GA) == names(data.ex.RP)
+names(data.new.GA) == names(data.new.RP)
+
+names(data.ex.GA)[20:22]
+names(data.ex.RP)[20:22]
+
+names(data.new.GA)[20:22]
+names(data.new.RP)[20:22]
+
+setdiff(names(data.ex.GA), names(data.ex.RP))
+
+#check for duplicate values in product ID (joining value)
+n_occur <- data.frame(table(data.ex.GA$Product_ID))
+n_occur[n_occur$Freq > 1,]
+
+#combine datasets
+#Existing Products
+##create subset of dataframe to match
+data.ex.GA %>% sapply(function(x) sum(is.na(x)))
+data.ex.RP %>% sapply(function(x) sum(is.na(x)))
+unmatch.RP <- data.ex.RP %>% select(Product_ID, 
+                                    Relative_Price, Environment_Impact, Durability_standard) #New Object
+
+#combine dataframe with subset dataframe
+data.ex <- left_join(data.ex.GA, unmatch.RP, by = "Product_ID") #New Object
+
+data.ex %>% sapply(function(x) sum(is.na(x)))
+
+save(data.ex, file = "output/dataEx.RDS")
+
+#Remove Bestseller Rank feature
+data.noBS <- data.ex %>% select(-Best_seller_rank) #New Object
+data.noBS %>% sapply(function(x) sum(is.na(x)))
+
+##New Products
+##create subset of dataframe to match
+data.new.GA %>% sapply(function(x) sum(is.na(x)))
+data.new.RP %>% sapply(function(x) sum(is.na(x)))
+unmatch.RP.new <- data.new.RP %>% select(Product_ID, 
+                                         Relative_Price, Environment_Impact, Durability_standard) #New Object
+
+#combine dataframe with subset dataframe
+data.ex.new <- left_join(data.new.GA, unmatch.RP.new, by = "Product_ID") #New Object
+
+data.ex.new %>% sapply(function(x) sum(is.na(x)))
+
+#Remove Bestseller Rank feature
+data.noBS.new <- data.ex.new %>% select(-Best_seller_rank) # removed same as existing data. #New Object
+
+#review data types/update data types
+str(data.noBS)
+data.cleanSTR <- data.noBS #New Object
+data.cleanSTR$Depth <- data.cleanSTR$Depth %>% as.numeric()
+data.cleanSTR$Product_type <- data.cleanSTR$Product_type %>% as.factor()
+str(data.cleanSTR)
+
+#remove unique identifiers (retain ID for later use)
+data.clean <- data.cleanSTR %>% select(-X) #New Object
+
+#Check for NA and locate
+data.clean %>% sapply(function(x) sum(is.na(x)))
+
+test <- which(is.na(data.clean), arr.ind=TRUE)
+data.clean[98,]
+
+#Remove NAs
+data.noNA <- data.clean %>% drop_na() #New Object
+
+###Like for like options: comparison
+#All products/services
+unique(data.noNA$Product_type) 
+product.type <- data.noNA %>% group_by(Product_type) %>%
+        summarize(total = n()) %>% as.data.frame() 
+product.type
+sum(product.type$total)
+
+#Just PC/Laptop/Netbook/Smartphone filtered
+product.type.focus <- product.type %>% filter(product.type$Product_type == "PC" | 
+                                                       product.type$Product_type == "Laptop" | 
+                                                       product.type$Product_type == "Netbook" |
+                                                       product.type$Product_type == "Smartphone")
+product.type.focus
+sum(product.type.focus$total)
+
+#Just 'Products'. Services (extended warranty) excluded
+product.type.products <- product.type %>% filter(product.type$Product_type != "Extended Warranty")
+product.type.products 
+sum(product.type.products$total)                                                                            
+
+# Decision > move forward with 'products' excluding 'service'
+data.trim <- data.noNA %>% filter(data.noNA$Product_type != "Extended Warranty") # New Object
+dim(data.trim)
+
+
+##Outliers Locate
+boxplot(data.trim)
+numericVars <- Filter(is.numeric, data.noNA) #extract only numeric values
+outliers <- numericVars %>% sapply(function(x) boxplot(x, plot=FALSE)$out) %>% str() 
+
+# Remove 2 extreme volume outliers
+data.noOL <- data.trim %>% filter(data.trim$Volume < 4000) #New Object
+boxplot(data.noOL)
+
+data <- data.noOL
+save(data, file = "output/data.RDS")
+
+##################
+
+#Unexpected Zero Values
+summary(data.noOL)
+zeroValues <- data.noOL %>% filter(data.noOL$Width == 0 |
+                                           data.noOL$Depth == 0 |
+                                           data.noOL$Heigth == 0 |
+                                           data.noOL$Weigth == 0 |
+                                           data.noOL$Volume == 0) %>% as.data.frame() # New Object
+View(zeroValues)
+table(zeroValues$Product_type)
+
+game.console <- data.noOL %>% filter(Product_type == "Game Console") #New Object
+View(game.console)
+
+##Correct Column Names
+data.noOL <- data.noOL %>% rename(Weight = Weigth, Height = Heigth)
+names(data.noOL)
+
+
+##remove specific zero valued items 
+#Zero volume but non-zero reviews
+data.ZV <- data.noOL # New Object
+data.ZV <- data.ZV %>% filter(Product_ID != "166", Product_ID != "129", Product_ID != "363")
+
+
+#separate dataset for non-zero valued items (to check if dimension features can be removed)
+#Just dimension zero values
+zeroValues.filtered <- data.ZV %>% filter(Width == 0 |
+                                           Depth == 0 |
+                                           Height == 0 |
+                                           Weight == 0) %>% as.data.frame()
+
+#No-zro values dataset
+NZV = data.ZV %>% filter(Width != 0 & Depth != 0 & Height != 0 & Weight != 0)
+
+### pre-feature selection re: dimensions
+#Decision tree to review feature importance
+DT <- rpart(Volume ~ ., NZV)
+fancyRpartPlot(DT)
+var.imp.DT <- DT$variable.importance %>% 
+        as.data.frame() %>%
+        rownames_to_column()
+
+### Remove 'Printer Supplies' with Zero dimensions
+data.noPrint <- data.ZV %>% filter(!(Depth == 0 & Product_type == "Printer Supplies")) # New Object
+
+##Check remaining zero values
+ZVF.remain <- data.noPrint %>% filter(Width == 0 |
+                                                  Depth == 0 |
+                                                  Height == 0 |
+                                                  Weight == 0) %>% as.data.frame()
+
+## Smartphone Imputation
+smart <- data.noPrint %>% filter(Product_type == "Smartphone")
+
+smart.weight <- smart$Weight[smart$Weight != 0] %>% mean()
+smart.depth <- smart$Depth[smart$Depth != 0] %>% mean()
+
+data.noPrint$Weight[(data.noPrint$Weight == 0) & (data.noPrint$Product_type == "Smartphone")] <- smart.weight
+data.noPrint$Depth[(data.noPrint$Depth == 0) & (data.noPrint$Product_type == "Smartphone")] <- smart.depth
+
+## Games Console Imputation
+game <- data.noPrint %>% filter(Product_type == "Game Console")
+
+game.weight <- 4.606667
+game.depth <- 4.956667
+game.height <- 7.896667
+game.width <- 9.833333
+
+data.noPrint$Weight[(data.noPrint$Weight == 0) & (data.noPrint$Product_type == "Game Console")] <- game.weight
+data.noPrint$Depth[(data.noPrint$Depth == 0) & (data.noPrint$Product_type == "Game Console")] <- game.depth
+data.noPrint$Height[(data.noPrint$Height == 0) & (data.noPrint$Product_type == "Game Console")] <- game.height
+data.noPrint$Width[(data.noPrint$Width == 0) & (data.noPrint$Product_type == "Game Console")] <- game.width
+
+## Software Imputation
+
+soft <- data.noPrint %>% filter(Product_type == "Software")
+
+soft.depth <- 1.2
+soft.height <- 6.5773
+soft.width <- 5.325
+
+data.noPrint$Depth[(data.noPrint$Depth == 0) & (data.noPrint$Product_type == "Software")] <- soft.depth
+data.noPrint$Height[(data.noPrint$Height == 0) & (data.noPrint$Product_type == "Software")] <- soft.height
+data.noPrint$Width[(data.noPrint$Width == 0) & (data.noPrint$Product_type == "Software")] <- soft.width
+
+save(data, file = "output/cleanData.RDS")
+load("output/cleanData.RDS")
+
+## Dummify Variables
+
+#factorise non-binary factor features
+data$Depth <- data$Depth %>% as.numeric()
+data$Product_type <- data$Product_type %>% as.factor()
+data$Age <- data$Age %>% as.factor()
+
+newDataframe <- dummyVars(" ~ .", data = data)
+readyData <- data.frame(predict(newDataframe, newdata = data))
+
+str(readyData)
+str(data)
+
+
+#load data
+load("output/cleanData.RDS")
+load("output/dumData.RDS")
+origdata <- data
+
+#Explore zero values for 5+4* reviews as NAs
+
+zeroRevs <- data[(data$X5Stars == 0) | (data$X4Stars == 0),]
+table(zeroRevs$X5Stars)
+
+table(data$X5Stars)
+table(data$X4Stars)
+
+sum(data$X5Stars == 0)
+
+x5zerPer <- 44/186*100
+x4zerPer <- 60/186*100
+
+zeroSummary <- data %>% group_by(Product_type) %>%
+        summarise(zero5 = sum(X5Stars == 0), total5 = length(X5Stars), perZero5 = zero5/length(X5Stars)*100, 
+                  zero4 = sum(X4Stars == 0), total4 = length(X4Stars), perZero4 = zero4/length(X4Stars)*100)                 
+
+
+###Actual Data Impute
+dataPostImp <- dumData
+dataPostImp$X5Stars[dataPostImp$X5Stars == 0] <- NA
+
+dataPostImp$X4Stars[dataPostImp$X4Stars == 0] <- NA
+
+dataPostImp$X3Stars[dataPostImp$X3Stars == 0] <- NA
+
+dataPostImp$X2Stars[dataPostImp$X2Stars == 0] <- NA
+
+dataPostImp$X1Stars[dataPostImp$X1Stars == 0] <- NA
+
+dataPostImp$Positive_service_review[dataPostImp$Positive_service_review == 0] <- NA
+
+dataPostImp$Negative_service_review[dataPostImp$Negative_service_review == 0] <- NA
+
+impSet <- c("X5Stars", "X4Stars", "X3Stars", "X2Stars", "X1Stars", 
+            "Positive_service_review", "Negative_service_review")
+
+dataPostImp <- kNN(dataPostImp, impSet , k=3)
+dataPostImp <- dataPostImp[,1:36]
+
+dataPostImp %>% sapply(function(x) sum(is.na(x)))
+
+corrMatrix <- cor(dataPostImp)
+corr.plot <- corrplot(corrMatrix, method = "number", tl.cex = 0.5, number.cex = 0.5)
+save(corr.plot, file = "output/corrplot.RDS")
+
+##Correlation - 0.95 to dependent and 0.85 to independent
+#remove 3 star and 1 star through colinearity
+modelData <- dataPostImp %>% select(-X3Stars, -X1Stars, -Product_ID)
+save(modelData, file = "output/modData.RDS")
+
+##EDA Dataset
+edaData <- dataPostImp[,12:36]
+join <- data.ex.GA %>% select(Product_ID, Product_type)
+edaData <-  inner_join(edaData, join, by = "Product_ID", copy = FALSE)
+save(edaData, file = "output/edaData.RDS")
+
+######
+save(dataPostImp, file = "output/impData.RDS")
+load("output/data.RDS")
+
+## Discussion points
+# Joining - what columns
+# Data structure (particularly Depth)
+# NA's (Bestseller list + Width)
+# What product types should we include in data? (all, products only (excl accessories, warranty, software), specified products only)
+# Outliers - what to remove?

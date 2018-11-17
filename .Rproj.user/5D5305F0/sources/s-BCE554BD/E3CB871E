@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1542376773128.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E3CB871E",
+    "lastKnownWriteTime" : 0,
+    "last_content_update" : 1542376773128,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "DCBEB6",
+        "caption" : "electroProducts",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=electroProducts&cache_key=DCBEB6",
+        "displayedObservations" : "17",
+        "environment" : "",
+        "object" : "electroProducts",
+        "preview" : "0",
+        "totalObservations" : "17",
+        "variables" : "2"
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

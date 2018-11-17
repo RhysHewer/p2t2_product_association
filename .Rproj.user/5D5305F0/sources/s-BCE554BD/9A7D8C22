@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1542376808927.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "9A7D8C22",
+    "lastKnownWriteTime" : 1542113548,
+    "last_content_update" : 1542113548,
+    "path" : "C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 3/scripts/data.processing.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "161,8",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
