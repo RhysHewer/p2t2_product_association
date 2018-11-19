@@ -10,4 +10,6 @@ library(caret)
 library(readr)
 library(pdftools)
 library(stringr)
+library(gridExtra)
+
 library(treemap) # take a look at this as a comparison tool.

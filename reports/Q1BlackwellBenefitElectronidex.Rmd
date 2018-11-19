@@ -1,12 +1,49 @@
-#Load libraries
-source("scripts/libraries.R")
+---
+title: "Blacwell Electronidex benefits"
+author: "Rhys Hewer"
+date: "19 November 2018"
+output: html_document
+---
+Would Blackwell benefit from selling any of Electronidex's items?
+===============================
 
+
+
+```{r message=FALSE} 
+#load libraries
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(RColorBrewer)
+library(tibble)
+library(arules)
+library(arulesViz)
+library(caret)
+library(readr)
+library(pdftools)
+library(stringr)
+library(gridExtra)
+```
+
+To answer the question of whether Blackwell would benefit from selling any of Electroidex's products we need a way to compare the products sold between the two companies. By doing this and, additionally, using the transaction data from Electronidex we can see whether there are any relationships between the shared products and the electronidex products which would suggest that Blackwell should stock products they currently do not.
+
+Ideally, the products would be compared on an item-for-item basis. As this is not available, the products will be compared on a product-type-for-product-type basis.
+
+The process to be used for this is as follows:
+
+* Collate the product type information of the Electronidex items.
+* Convert the transactional data from item to product type.
+* Explore positive associations between shared product types (product types stocked both by both Blackwell and Electronidex) and Electronidex-only products.
+* For Electronidex-only product types with positive relationships to shared product types, make recommendations about which of these Blackwell should sell.
+
+
+```{r}
 #load csv data
 transData <- read.transactions("data/ElectronidexTransactions2017.csv", format = "basket", sep = ",")
 prodData <- read.csv("data/ElectronidexTransactions2017.csv", header = FALSE)
 
 
-### Loading PDF data
+### Loading PDF Elecronited product type data
 text <- pdf_text("data/ElectronidexItems2017.pdf")
 
 text2 <- strsplit(text, "\n")
@@ -102,4 +139,6 @@ summary(typeData)
 save(transData, file = "output/transData.RDS")
 save(prodData, file = "output/prodData.RDS")
 save(typeData, file = "output/typeData.RDS")
+```
+
 

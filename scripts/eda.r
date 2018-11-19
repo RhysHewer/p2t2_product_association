@@ -10,20 +10,26 @@ load("output/typeData.RDS") # transaction data product type (sparse matrix)
 blackData <- read.csv("data/existingProductAttributes.csv")
 
 ##BLACKWELL DATA
-#EDA of blackwell profitability
-blackData <- blackData %>% filter(Product.Type != "Extended Warranty") %>% mutate(profit = (Volume * Price * Profit.margin)/10^3, unitProfit = Price * Profit.margin)
+
+#summary + visualisation of profit/volumne/margin/price blackwells product types
+blackData <- blackData %>% filter(Product.Type != "Extended Warranty") %>% 
+        mutate(profit = (Volume * Price * Profit.margin)/10^3, unitProfit = Price * Profit.margin)
+
 blackProfit <- blackData %>% group_by(Product.Type) %>%
-        summarise(absProfit = sum(profit), unitProfit = mean(unitProfit), volume = sum(Volume))
+        summarise(absProfit = sum(profit), unitProfit = mean(unitProfit), volume = sum(Volume), 
+                  meanMargin = mean(Profit.margin), avgPrice = mean(Price))
+
 blackProfit
+
 
 g1 <- ggplot(blackProfit, aes(reorder(Product.Type, -absProfit), absProfit, fill = unitProfit)) +
         geom_col() +
         scale_fill_gradient(low = "skyblue", high = "blue4") + 
         theme_bw() +
-        ylab("Profit ($ thousands)") + 
+        ylab("Profit ($ thousands, timescale unknown)") + 
         xlab("Product Type") + 
-        ggtitle("Profit per Product Type") +
-        theme(axis.text.x=element_text(angle = -45, hjust = 0)) +
+        ggtitle("Blackwell: Profit per Product Type") +
+        theme(axis.text.x=element_text(angle = -45, hjust = 0), legend.position = c(0.9, 0.85)) +
         geom_text(aes(label = absProfit %>% round(0)), vjust = -0.3)
 g1
 
@@ -32,80 +38,51 @@ g2 <- ggplot(blackProfit, aes(reorder(Product.Type, -absProfit), volume)) +
         theme_bw() +
         ylab("Sales Volume") + 
         xlab("Product Type") + 
-        ggtitle("Sales Volume per Product Type") +
+        ggtitle("Blackwell: Sales Volume per Product Type") +
         theme(axis.text.x=element_text(angle = -45, hjust = 0)) +
         geom_text(aes(label = volume %>% round(0)), vjust = -0.3)
 g2
 
+grid.arrange(ncol = 2, g1, g2)
 
 ###ELECTROINDEX DATA
 ##Product type frequency
-
 electroProducts <- itemFrequency(typeData) %>% as.data.frame() %>% rownames_to_column()
 names(electroProducts) <- c("ProductType", "Support")
 electroProducts <- electroProducts %>% mutate(Occurance = Support * 9835)
 
-g3 <- ggplot(electroProducts, aes(reorder(ProductType, -Support), Support)) +
+g3 <- ggplot(electroProducts, aes(reorder(ProductType, -Occurance), Occurance)) +
         geom_col(fill = "#ae82bc") +
         theme_bw() +
-        ylab("Frequency") + 
+        ylab("Sales Volume (month, est.)") + 
         xlab("Product Type") + 
-        ggtitle("Frequency per Product Type") +
+        ggtitle("Electronidex: Sales Volume (est.) per Product Type") +
         theme(axis.text.x=element_text(angle = -45, hjust = 0)) +
         geom_text(aes(label = Support %>% round(2)), vjust = -0.3)
 g3
 
+##comparison of blackwell and electronidex shared product types (not sure how useful this is)
+compProd <- electroProducts %>% filter(ProductType == "accessories" | ProductType == "monitor" | ProductType == "laptop" |
+                                       ProductType == "desktop" | ProductType == "printer" | ProductType == "printink" | ProductType == "tablet")
+
+# assume that profit margin + price of electronidex products are similar to blackwell 
+compProd$profitMargin <- c(0.05, 0.172, 0.107, 0.142, 0.139, 0.317, 0.17)
+compProd$avgPrice <- c(60.1, 550, 754, 1052, 217, 51, 472)
+
+compProd <- compProd %>% mutate(profit = (Occurance * profitMargin * avgPrice)/10^3)
+
+g4 <- ggplot(compProd, aes(reorder(ProductType, -profit), profit)) +
+        geom_col(fill = "#996210") +
+        theme_bw() +
+        ylab("Profit ($ thousands per month)") + 
+        xlab("Product Type") + 
+        ggtitle("Electronidex: Profit per shared Product Type") +
+        theme(axis.text.x=element_text(angle = -45, hjust = 0), legend.position = c(0.9, 0.85)) +
+        geom_text(aes(label = profit %>% round(0)), vjust = -0.3)
+g4
+
+grid.arrange(ncol = 2, g3, g4)
+
+
 
 ###Investigating trends in Electroindex Product Types
-#preliminary data investigation
-summary(typeData) #summary of dataset
-inspect(typeData[1:5]) #inspect specific transaction sets
-itemLabels(typeData) %>% sample(10) # random sample of 10 item names
-size(typeData[1:10])
-summary(itemFrequency(typeData)) # summary of support values of dataset
-
-#zero items transaction (return to this!!)
-
-itemFrequency(typeData)
-
-
-
-
-#preliminary visualisation
-itemFrequencyPlot(typeData, support = 0.05)
-itemFrequencyPlot(typeData, topN = 10, cex.names = 0.7, col = brewer.pal(8, 'Dark2'))
-
-typeData %>% sample(25) %>% image()
-
-#apriori package
-basketRules <- apriori(typeData, parameter = list(supp = 0.05, conf = 0.10, minlen = 2))
-basketRules
-
-#Rules specific to desktops
-basketRules.Desktop <- apriori (typeData, parameter = list(supp = 0.05, conf = 0.10, minlen = 2), # get rules that lead to buying 'desktop'
-                                appearance = list (default="lhs",rhs="desktop"), control = list (verbose=F))
-basketRules.Desktop %>% sort(by = "confidence") %>% head(5) %>% inspect()
-
-
-
-basketRules %>% sort(by = "lift") %>% head(5) %>% inspect()
-basketRules %>% sort(by = "lift") %>% tail(5) %>% inspect()
-
-basketRules %>% sort(by = "support") %>% head(5) %>% inspect()
-basketRules %>% sort(by = "support") %>% tail(5) %>% inspect()
-
-basketRules %>% sort(by = "confidence") %>% head(5) %>% inspect()
-basketRules %>% sort(by = "confidence") %>% tail(5) %>% inspect()
-
-inspect(basketRules[1:5])
-summary(basketRules)
-
-ItemRules <- basketRules %>% subset(items %in% "ASUS Chromebook")
-ItemRules %>% inspect()
-
-##Results visualisation
-plot(basketRules)
-plot(basketRules[1:10], method="graph", control = list( type = "items")) 
-
-#Shiny app
-ruleExplorer(basketRules)

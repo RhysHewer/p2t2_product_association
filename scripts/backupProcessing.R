@@ -17,6 +17,9 @@ text3 <- gsub("\r", "", text2)
 prod.list <- text3 %>% as.data.frame()
 
 ##create product type lists
+
+
+
 laptop.list <- prod.list[2:11,1] %>% as.character() %>% trimws("l")
 desktop.list <- prod.list[13:21,1] %>% as.character() %>% trimws("l")
 monitor.list <- prod.list[23:32,1] %>% as.character() %>% trimws("l")
@@ -35,7 +38,34 @@ comptablets.list <- prod.list[126:130,1] %>% as.character() %>% trimws("l")
 extdrives.list <- prod.list[132:136,1] %>% as.character() %>% trimws("l")
 smarthome.list <- prod.list[138:142,1] %>% as.character() %>% trimws("l")
 
-#string replacement lists
+#string replacement lists function
+prodReplace <- function(x,y){
+        list1 <- x %>% as.data.frame()
+        list1$name <- y
+        list2 <- list1$name
+        names(list2) <- list1$.
+        list2
+}
+
+laptop.replace <- prodReplace(laptop.list, "laptop")
+desktop.replace <- prodReplace(desktop.list, "desktop")
+monitor.replace <- prodReplace(monitor.list, "monitor")
+mice.replace <- prodReplace(mice.list, "mouse")
+keyboard.replace <- prodReplace(keyboard.list, "keyboard")
+mousekeyboard.replace <- prodReplace(mousekeyboard.list, "mousekeyboard")
+compheadphones.replace <- prodReplace(compheadphones.list, "compheadphones")
+activeheadphones.replace <- prodReplace(activeheadphones.list, "activeheadphones")
+compcords.replace <- prodReplace(compcords.list, "compcord")
+accessories.replace <- prodReplace(accessories.list, "accessories")
+speakers.replace <- prodReplace(speakers.list, "speaker")
+printers.replace <- prodReplace(printers.list, "printer")
+printink.replace <- prodReplace(printink.list, "printink")
+compstands.replace <- prodReplace(compstands.list, "compstand")
+comptablets.replace <- prodReplace(comptablets.list, "tablet")
+extdrives.replace <- prodReplace(extdrives.list, "extdrive")
+smarthome.replace <- prodReplace(smarthome.list, "smarthome")
+
+#backup replace lists
 laptop.replace <- c("LG Touchscreen Laptop" = "laptop", "Acer Aspire" = "laptop", "HP Laptop" = "laptop",
                     "Apple Macbook Pro" = "laptop", "Apple MacBook Air" = "laptop", "Dell Laptop" = "laptop",
                     "Alienware AW17R4-7345SLV-PUS 17\" Laptop" = "laptop", "HP Notebook Touchscreen Laptop PC" = "laptop",
@@ -76,11 +106,11 @@ mousekeyboard.replace <- c("Logitech MK550 Wireless Wave Keyboard and Mouse Comb
 compheadphones.replace <- c("Computer Headphones" = "compheadphones", "Zombie Gaming Headset" = "compheadphones",                      
                             "Logitech ClearChat Headset" = "compheadphones", 
                             "Panasonic On-Ear Stereo Headphones RP-HT21" = "compheadphones", 
-                           "PC Gaming Headset" = "compheadphones", "Kensington Headphones" = "compheadphones",                      
-                           "Logitech Stereo Headset" = "compheadphones", "Koss Home Headphones" = "compheadphones",
-                           "Microsoft Headset" = "compheadphones", "Ailihen Stereo Headphones" = "compheadphones",                 
-                           "XIBERIA Gaming Headset" = "compheadphones")
-        
+                            "PC Gaming Headset" = "compheadphones", "Kensington Headphones" = "compheadphones",                      
+                            "Logitech Stereo Headset" = "compheadphones", "Koss Home Headphones" = "compheadphones",
+                            "Microsoft Headset" = "compheadphones", "Ailihen Stereo Headphones" = "compheadphones",                 
+                            "XIBERIA Gaming Headset" = "compheadphones")
+
 activeheadphones.replace <- c("Apple Earpods" = "activeheadphones", "Monster Beats By Dr Dre" = "activeheadphones",                   
                               "Otium Wireless Sports Bluetooth Headphones" = "activeheadphones", 
                               "Panasonic In-Ear Headphone" = "activeheadphones", 
@@ -90,12 +120,12 @@ activeheadphones.replace <- c("Apple Earpods" = "activeheadphones", "Monster Bea
                               "APIE Bluetooth Headphone" = "activeheadphones",
                               "Otium Wireless Sports Bluetooth Headphone" = "activeheadphones",
                               "Philips Flexible Earhook Headphone" = "activeheadphones") 
-        
+
 compcords.replace <- c("HDMI Cable 6ft" = "compcord", "Ethernet Cable" = "compcord", 
                        "Etekcity Power Extension Cord Cable" = "compcord", "Audio Cable" = "compcord",
                        "VGA Monitor Cable" = "compcord", "iPhone Charger Cable" = "compcord",               
                        "HDMI Adapter" = "compcord", "USB Cable" = "compcord", "Samsung Charging Cable" = "compcord")        
-        
+
 accessories.replace <- c("Microsoft Office Home and Student 2016" = "accessories", "Computer Game" = "accessories",
                          "Belkin Mouse Pad" = "accessories", "Large Mouse Pad" = "accessories")
 
@@ -128,6 +158,21 @@ smarthome.replace <- c("Apple TV" = "smarthome", "Google Home" = "smarthome", "S
                        "Fire TV Stick" = "smarthome", "Roku Express" = "smarthome")
 
 #string replacement function
+stringReplace <- function(z){
+        inList <- z
+        repLace <- prodData
+        repLace <- sapply(repLace, function(x) str_replace_all(x, inList))
+        data.frame(repLace)
+}
+
+productList <- c(laptop.replace, desktop.replace, monitor.replace, mice.replace, keyboard.replace, mousekeyboard.replace,
+               compheadphones.replace, activeheadphones.replace, compcords.replace, accessories.replace, speakers.replace,
+               printers.replace, printink.replace, compstands.replace, comptablets.replace, extdrives.replace, smarthome.replace)
+
+typePrep <- stringReplace(productList)
+
+##backup
+#string replacement function
 typePrep <- as.data.frame(sapply(prodData, function(x) str_replace_all(x, laptop.replace)))
 typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, desktop.replace)))
 typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, monitor.replace)))
@@ -146,22 +191,11 @@ typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, compta
 typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, extdrives.replace)))
 typePrep <- as.data.frame(sapply(typePrep, function(x) str_replace_all(x, smarthome.replace)))
 
-#not all products were included on product type list
-# "Alienware Laptop", "Apple MacBook Pro", "Eluktronics Pro Gaming Laptop", "Panasonic On-Ear Stereo Headphones", 
-# "tabletlet", "APIE Bluetooth Headphone", "ASUS Chromebook", "Otium Wireless Sports Bluetooth Headphone",  "printer Toner" 
-# "Philips Flexible Earhook Headphone", "Slim extdrive", "tablet Pro"  - added to relevant product replacement lists    
-
+ 
 
 #CSV creation/re-import
 write.table(typePrep, file = "output/typePrep.csv", sep=",", row.names = FALSE, col.names = FALSE)
 typeData <- read.transactions("output/typePrep.csv", format = "basket", sep=",")
 inspect(typeData[1:10])
 summary(typeData)
-
-
-
-#Outputs
-save(transData, file = "output/transData.RDS")
-save(prodData, file = "output/prodData.RDS")
-save(typeData, file = "output/typeData.RDS")
-
+itemLabels(typeData)
