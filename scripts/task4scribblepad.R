@@ -115,6 +115,7 @@ plot(basketRules[1:10], method="graph", control = list( type = "items"))
 #Shiny app
 ruleExplorer(basketRules)
 
+
 ##Convert rules to dataframe !!!! Can then use dplyr to manipulate.
 basketFrame <- data.frame(
         lhs = labels(lhs(basketRules)),

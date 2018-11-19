@@ -24,11 +24,12 @@ library(readr)
 library(pdftools)
 library(stringr)
 library(gridExtra)
+library(kableExtra)
 ```
 
 ### Approach
 
-To answer the question of whether Blackwell would benefit from selling any of Electroidex's products we need a way to compare the products sold between the two companies. By doing this and, additionally, using the transaction data from Electronidex we can see whether there are any relationships between the shared products and the electronidex products which would suggest that Blackwell should stock products they currently do not.
+To answer the question of whether Blackwell would benefit from selling any of Electronidex's products we need a way to compare the products sold between the two companies. By doing this and, additionally, using the transaction data from Electronidex we can see whether there are any relationships between the shared products and the electronidex products which would suggest that Blackwell should stock products they currently do not.
 
 Ideally, the products would be compared on an item-for-item basis. As this is not available, the products will be compared on a product-type-for-product-type basis.
 
@@ -173,7 +174,9 @@ basketLeft <- basketFrameType %>% filter(!grepl(notSharedProducts, lhs)) %>%
 
 basketLeftAvg <- basketLeft %>% group_by(rhs) %>%
         summarise(avgSupport = mean(support), avgConfidence = mean(confidence), avgLift = mean(lift))
-basketLeftAvg
+
+kable(basketLeftAvg) %>%
+        kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
 The association rules are generated with the following limits:
@@ -187,5 +190,101 @@ The association rules were then filtered so that rules where only shared product
 We see that within the limits we set there are no Electronidex-only product types which are sufficiently positively associated with the shared product types, and by extension, the Blackwell product types.
 
 #### Electronidex-only product types which are associated with purchases of shared product types
+
+```{r}
+basketRight <- basketFrameType %>% filter(!grepl(notSharedProducts, rhs)) %>%
+        filter(support > 0.05, confidence > 0.6, lift > 1)
+```
+
+The association rules are generated with the following limits:
+
+* Support > 0.05: This represents itemsets that occur more than 5% of the time
+* Confidence > 0.6: This represents the RHS items occuring at least 60% of the time the LHS occur
+* Lift > 1: This ensures that the itemsets are not independent and that the relationship is positive (each side of the itemset increases the chance of the other side occuring)
+
+The association rules were then filtered so that rules where only shared product types were contained within the RHS remained.
+
+The following plot was produced:
+
+```{r}
+g5 <- ggplot(basketRight, aes(rhs, lhs)) +
+        geom_count(aes(size = confidence, colour = support)) +
+        scale_colour_gradient(low = "skyblue", high = "darkblue") +
+        theme_bw() +
+        ylab("LHS Itemset") + 
+        xlab("Shared Product Type") + 
+        ggtitle("Association Rules: RHS shared products")
+g5
+
+```
+
+At first glance it seems that there are a number of potentially interesting associations to explore. However, when a closer look is taken, some questions regarding customer behaviour arise.
+
+By looking more in-depth at fewer rules these questions become more apparent.
+
+```{r}
+basketRightFocus <- basketRight %>% filter(support > 0.075, confidence > 0.75, lift > 1.2)
+
+kable(basketRightFocus) %>%
+        kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
+The above data are generated from the most positive association rules, with metrics of:
+
+* Support > 0.075: This represents itemsets that occur more than 7.5% of the time
+* Confidence > 0.75: This represents the RHS items occuring at least 75% of the time the LHS occur
+* Lift > 1.2: This ensures that the itemsets are not independent and that the relationship is significantly positive (each side of the itemset increases the chance of the other side occuring)
+
+All the transactions have a positive association with a desktop being purchased. What is noteworthy, however, is that in 50% of the listed transactions, a laptop is also purchased. In consumer purchases, desktops and laptops are infrequently purchased together. Electronidex sales patterns are more indicative of a business-to-business wholesaler and, as such, their utility in comparing to Blackwell's business-to-consumer model is diminished. 
+
+The directionality of the association is also a concern. Whilst the rules are correlative rather than causative, they do seem to suggest that the less expensive peripherals have a positive impact on whether a desktop is purchased and also that buying a laptop (a product which usually replaces a desktop) has a positive impact on whether a desktop is purchased.
+
+One would usually expect the purchase of the more expensive primary items to drive the purchase of the less expensive secondary items - Rarely have I purchased a mouse and thought 'I probably need a desktop with that' - but this is not the pattern here. Also, if there was this type of relationship, one would expect it to be reciprocated when the desktop is on the LHS of the itemset. As we saw, previously, this was not the case.
+
+#### Conclusion: Would Blackwell benefit from selling any of Electronidex's items?
+
+Reviewing the associations generated by the shared products being on the LHS we saw that only the products that we already sell have a positive association with the shared products itemsets. This suggests that we are not missing out on product types, currently being sold by Electronidex, that would likely sell alongside the exisiting shared product types sold by Blackwell.
+
+We see that there are items that seem to have a positive impact on the sales of product types currently stocked by Blackwell but that these patterns are questionable due to the difference in customer behaviour between our businesses.
+
+I would recommend a small trial based on the top-frequency products within the product types most associated with a positive impact current Blackwell products.
+
+Based on our focussed dataset, these product types are:
+
+* Mouse & Keyboard combination
+* Active Headphones
+* Keyboard
+* Mouse
+
+We do not have information about sales volume, price or profitablility for the Electronidex products. Frequency of appearance in the basket has been used as a proxy for these.
+
+The recommended products are:
+```{r}
+## Most frequent Electronidex products - Mouse & Keyboard combination/Active Headphones/Keyboard/Mouse
+freq <- itemFrequency(transData) %>% as.data.frame %>% rownames_to_column()
+colnames(freq) <- c("rowNames", "support")
+
+is.keyboard <- freq$rowNames %in% keyboard.list
+freq$prodType[is.keyboard] <- "keyboard"
+
+is.mouse <- freq$rowNames %in% mice.list
+freq$prodType[is.mouse] <- "mouse"
+
+is.mousekeyboard <- freq$rowNames %in% mousekeyboard.list
+freq$prodType[is.mousekeyboard] <- "mousekeyboard"
+
+is.activeheadphones <- freq$rowNames %in% activeheadphones.list
+freq$prodType[is.activeheadphones] <- "activeheadphones"
+
+#Blackwell don't stock apple desktops or laptops (only smartphone) so remove apple peripherals
+freq <- freq %>% filter(!str_detect(rowNames, "Apple"))
+
+freq.filter <- freq %>% na.omit() %>% group_by(prodType) %>%
+        top_n(n = 2, wt = support) %>% arrange(prodType)
+
+kable(freq.filter) %>%
+        kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
 
 

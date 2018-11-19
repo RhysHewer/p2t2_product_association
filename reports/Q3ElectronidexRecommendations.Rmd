@@ -1,0 +1,33 @@
+---
+output:
+  html_document:
+    code_folding: hide
+    number_sections: yes
+    theme: cosmo
+    toc: yes
+    toc_float: yes
+---
+
+## If Blackwell does acquire Electronidex, do you have any recommendations for Blackwell?
+
+```{r message=FALSE} 
+#load libraries
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(RColorBrewer)
+library(tibble)
+library(arules)
+library(arulesViz)
+library(caret)
+library(readr)
+library(pdftools)
+library(stringr)
+library(gridExtra)
+library(kableExtra)
+```
+
+```{r warning=FALSE}
+#load csv data
+transData <- read.transactions("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", format = "basket", sep = ",")
+prodData <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", header = FALSE)

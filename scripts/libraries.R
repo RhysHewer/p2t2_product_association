@@ -11,5 +11,6 @@ library(readr)
 library(pdftools)
 library(stringr)
 library(gridExtra)
+library(kableExtra)
 
 library(treemap) # take a look at this as a comparison tool.

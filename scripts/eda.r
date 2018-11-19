@@ -106,7 +106,46 @@ basketLeftAvg <- basketLeft %>% group_by(rhs) %>%
         summarise(avgSupport = mean(support), avgConfidence = mean(confidence), avgLift = mean(lift))
 basketLeftAvg        
 
+
 ##Filter based on RHS shared products and support/confidence/lift metrics summarise these
 basketRight <- basketFrameType %>% filter(!grepl(notSharedProducts, rhs)) %>%
         filter(support > 0.05, confidence > 0.6, lift > 1)
 
+g5 <- ggplot(basketRight, aes(rhs, lhs)) +
+        geom_count(aes(size = confidence, colour = support)) +
+        scale_colour_gradient(low = "skyblue", high = "darkblue") +
+        theme_bw() +
+        ylab("LHS Itemset") + 
+        xlab("Shared Product Type") + 
+        ggtitle("Association Rules: RHS shared products")
+g5
+
+basketRightFocus <- basketRight %>% filter(support > 0.075, confidence > 0.75, lift > 1.2)
+basketRightFocus
+
+recProdTypes <- basketRight %>% group_by(lhs) %>%
+        summarise(sum = n()) %>%
+        filter(sum > 1)
+
+## Most frequent Electronidex products - Mouse & Keyboard combination/Active Headphones/Keyboard/Mouse
+freq <- itemFrequency(transData) %>% as.data.frame %>% rownames_to_column()
+colnames(freq) <- c("rowNames", "support")
+
+is.keyboard <- freq$rowNames %in% keyboard.list
+freq$prodType[is.keyboard] <- "keyboard"
+
+is.mouse <- freq$rowNames %in% mice.list
+freq$prodType[is.mouse] <- "mouse"
+
+is.mousekeyboard <- freq$rowNames %in% mousekeyboard.list
+freq$prodType[is.mousekeyboard] <- "mousekeyboard"
+
+is.activeheadphones <- freq$rowNames %in% activeheadphones.list
+freq$prodType[is.activeheadphones] <- "activeheadphones"
+
+#Blackwell don't stock apple desktops or laptops (only smartphone) so remove apple peripherals
+freq <- freq %>% filter(!str_detect(rowNames, "Apple"))
+
+freq.filter <- freq %>% na.omit() %>% group_by(prodType) %>%
+        top_n(n = 2, wt = support) %>% arrange(prodType)
+freq.filter
