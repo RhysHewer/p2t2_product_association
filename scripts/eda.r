@@ -86,3 +86,27 @@ grid.arrange(ncol = 2, g3, g4)
 
 
 ###Investigating trends in Electroindex Product Types
+
+### Generate association rules and convert to dataframe for manipulation
+basketRulesType <- apriori(typeData, parameter = list(supp = 0.01, conf = 0.1, minlen = 2))
+basketFrameType <- data.frame(
+        lhs = labels(lhs(basketRulesType)),
+        rhs = labels(rhs(basketRulesType)), 
+        basketRulesType@quality)
+
+##Filter based on LHS shared products and support/confidence/lift metrics summarise these
+sharedProducts <- ("accessories|monitor|laptop|desktop|printer|printink|tablet")
+notSharedProducts <- ("mouse|keyboard|mousekeyboard|compheadphones|activeheadphones|compcord|speaker|compstand|
+                      extdrive|smarthome")
+
+basketLeft <- basketFrameType %>% filter(!grepl(notSharedProducts, lhs)) %>%
+        filter(support > 0.05, confidence > 0.6, lift > 1)
+
+basketLeftAvg <- basketLeft %>% group_by(rhs) %>%
+        summarise(avgSupport = mean(support), avgConfidence = mean(confidence), avgLift = mean(lift))
+basketLeftAvg        
+
+##Filter based on RHS shared products and support/confidence/lift metrics summarise these
+basketRight <- basketFrameType %>% filter(!grepl(notSharedProducts, rhs)) %>%
+        filter(support > 0.05, confidence > 0.6, lift > 1)
+

@@ -1,12 +1,13 @@
 ---
-title: "Blacwell Electronidex benefits"
-author: "Rhys Hewer"
-date: "19 November 2018"
-output: html_document
+output:
+  html_document:
+    code_folding: hide
+    number_sections: yes
+    theme: cosmo
+    toc: yes
+    toc_float: yes
 ---
-Would Blackwell benefit from selling any of Electronidex's items?
-===============================
-
+## Would Blackwell benefit from selling any of Electronidex's items?
 
 
 ```{r message=FALSE} 
@@ -25,6 +26,8 @@ library(stringr)
 library(gridExtra)
 ```
 
+### Approach
+
 To answer the question of whether Blackwell would benefit from selling any of Electroidex's products we need a way to compare the products sold between the two companies. By doing this and, additionally, using the transaction data from Electronidex we can see whether there are any relationships between the shared products and the electronidex products which would suggest that Blackwell should stock products they currently do not.
 
 Ideally, the products would be compared on an item-for-item basis. As this is not available, the products will be compared on a product-type-for-product-type basis.
@@ -36,15 +39,15 @@ The process to be used for this is as follows:
 * Explore positive associations between shared product types (product types stocked both by both Blackwell and Electronidex) and Electronidex-only products.
 * For Electronidex-only product types with positive relationships to shared product types, make recommendations about which of these Blackwell should sell.
 
-
-```{r}
+### Data pre-processing
+```{r warning=FALSE}
 #load csv data
-transData <- read.transactions("data/ElectronidexTransactions2017.csv", format = "basket", sep = ",")
-prodData <- read.csv("data/ElectronidexTransactions2017.csv", header = FALSE)
+transData <- read.transactions("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", format = "basket", sep = ",")
+prodData <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", header = FALSE)
 
 
 ### Loading PDF Elecronited product type data
-text <- pdf_text("data/ElectronidexItems2017.pdf")
+text <- pdf_text("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexItems2017.pdf")
 
 text2 <- strsplit(text, "\n")
 text2 <- text2 %>% unlist(recursive = TRUE)
@@ -128,17 +131,61 @@ typePrep <- stringReplace(productList)
 
 
 #CSV creation/re-import
-write.table(typePrep, file = "output/typePrep.csv", sep=",", row.names = FALSE, col.names = FALSE)
-typeData <- read.transactions("output/typePrep.csv", format = "basket", sep=",")
-inspect(typeData[1:10])
+write.table(typePrep, file = "C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/output/typePrep.csv", sep=",", row.names = FALSE, col.names = FALSE)
+typeData <- read.transactions("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/output/typePrep.csv", format = "basket", sep=",")
+
 summary(typeData)
 
-
-
-#Outputs
-save(transData, file = "output/transData.RDS")
-save(prodData, file = "output/prodData.RDS")
-save(typeData, file = "output/typeData.RDS")
 ```
+
+### Generate Electronidex Association Rules
+
+```{r}
+### Generate association rules and convert to dataframe for manipulation
+basketRulesType <- apriori(typeData, parameter = list(supp = 0.01, conf = 0.1, minlen = 2))
+basketFrameType <- data.frame(
+        lhs = labels(lhs(basketRulesType)),
+        rhs = labels(rhs(basketRulesType)), 
+        basketRulesType@quality)
+
+```
+
+The association rules are generated for the whole Electronidex product type set. Low barriers are set for the creation of the rules and the output is converted to a dataframe for ease of manipulation.
+
+
+There are two directions to explore within these transactions. These are:
+
+* Shared product types which are associated with purchases of Electronidex-only product types
+* Electronidex-only product types which are associated with purchases of shared product types
+
+These will be investigated in-turn.
+
+#### Shared product types which are associated with purchases of Electronidex-only product types
+
+```{r}
+##Filter based on LHS shared products and support/confidence/lift metrics summarise these
+sharedProducts <- ("accessories|monitor|laptop|desktop|printer|printink|tablet")
+notSharedProducts <- ("mouse|keyboard|mousekeyboard|compheadphones|activeheadphones|compcord|speaker|compstand|
+                      extdrive|smarthome")
+
+basketLeft <- basketFrameType %>% filter(!grepl(notSharedProducts, lhs)) %>%
+        filter(support > 0.05, confidence > 0.6, lift > 1)
+
+basketLeftAvg <- basketLeft %>% group_by(rhs) %>%
+        summarise(avgSupport = mean(support), avgConfidence = mean(confidence), avgLift = mean(lift))
+basketLeftAvg
+```
+
+The association rules are generated with the following limits:
+
+* Support > 0.05: This represents itemsets that occur more than 5% of the time
+* Confidence > 0.6: This represents the RHS items occuring at least 60% of the time the LHS occur
+* Lift > 1: This ensures that the itemsets are not independent and that the relationship is positive (each side of the itemset increases the chance of the other side occuring)
+
+The association rules were then filtered so that rules where only shared product types were contained within the LHS remained. The RHS product types were summarised to give a general picture of the positive association between the shared products and the product types with which they have a positive relationship.
+
+We see that within the limits we set there are no Electronidex-only product types which are sufficiently positively associated with the shared product types, and by extension, the Blackwell product types.
+
+#### Electronidex-only product types which are associated with purchases of shared product types
 
 
