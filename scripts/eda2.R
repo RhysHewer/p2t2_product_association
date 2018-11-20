@@ -79,3 +79,4 @@ g8 <- ggplot(transTable, aes(sizeTrans, percent)) +
         xlab("Number of Items") + 
         ggtitle("Electronidex: Number of Items distribution")
 g8
+
