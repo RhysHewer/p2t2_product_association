@@ -1,0 +1,6 @@
+ProductType,ProductNo,BrandName,Price,ProfitMargin,SalesVolume,Profit
+Tablet,187,Amazon,$199.00,0.2,2638,"$104,992.40"
+PC,171,Dell,$699.00,0.25,282,"$49,279.50"
+Tablet,186,Apple,$629.00,0.1,752,"$47,300.80"
+Netbook,180,Acer,$329.00,0.09,780,"$23,095.80"
+Game Console,199,Sony,$249.99,0.09,944,"$21,239.15"

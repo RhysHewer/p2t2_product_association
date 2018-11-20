@@ -14,6 +14,7 @@ blackData <- read.csv("data/existingProductAttributes.csv")
 #summary + visualisation of profit/volumne/margin/price blackwells product types
 blackData <- blackData %>% filter(Product.Type != "Extended Warranty") %>% 
         mutate(profit = (Volume * Price * Profit.margin)/10^3, unitProfit = Price * Profit.margin)
+blackData
 
 blackProfit <- blackData %>% group_by(Product.Type) %>%
         summarise(absProfit = sum(profit), unitProfit = mean(unitProfit), volume = sum(Volume), 

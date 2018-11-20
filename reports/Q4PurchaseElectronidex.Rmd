@@ -25,11 +25,73 @@ library(pdftools)
 library(stringr)
 library(gridExtra)
 library(kableExtra)
+library(treemap)
 ```
 
 ```{r warning=FALSE}
 #load csv data
 transData <- read.transactions("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", format = "basket", sep = ",")
 prodData <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", header = FALSE)
+
+#Load data - Blackwell products info
+blackData <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/existingProductAttributes.csv")
+
+##Load Data - Blackwell demographics
+blackDemo <- read_csv2("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/Blackwell_Demographic_Data.csv")
+colnames(blackDemo)[1] <- "instore"
+
+#Load Data - profit predictions Blackwell
+profPred <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/BWNewProfitPredictions.csv")
 ```
+
+Before making a recommendation as to whether to purchase Electronidex I think it would be beneficial to give an overview of both companies.
+
+### Blackwell Electronics
+
+Blackwell Electronics is a successful consumer electronics retailer with over 30 stores in the southeastern United States and who last year launched an eCommerce website.
+
+```{r}
+blackData <- blackData %>% filter(Product.Type != "Extended Warranty") %>% 
+        mutate(profit = (Volume * Price * Profit.margin)/10^3, unitProfit = Price * Profit.margin)
+
+
+blackProfit <- blackData %>% group_by(Product.Type) %>%
+        summarise(absProfit = sum(profit), unitProfit = mean(unitProfit), volume = sum(Volume), 
+                  meanMargin = mean(Profit.margin), avgPrice = mean(Price))
+
+
+treemap(blackProfit, index = "Product.Type", vSize = "volume", title = "Blackwell Sales Volume by Product Type")
+treemap(blackProfit, index = "Product.Type", vSize = "absProfit", title = "Blackwell Profit by Product Type")
+```
+
+We see that in terms of sales volume, Accessories and Game Consoles make up the majority of Blackwell's Products. Looking at the profit, however, we see that it is Games Consoles and Displays that make up a substantial part of Blackwell's profits.
+
+```{r}
+#Blackwell instore v online 
+onlinePurch <- blackDemo %>% group_by(instore) %>%
+        summarise(count = n())
+onlinePurch <- onlinePurch %>% mutate(percent = (count/sum(onlinePurch$count))*100)
+onlinePurch$instore[onlinePurch$instore == 0] <- "Online"
+onlinePurch$instore[onlinePurch$instore == 1] <- "In Store"
+
+g6 <- ggplot(onlinePurch, aes(instore, percent)) +
+        geom_col(fill = "#31913c") +
+        theme_bw() +
+        ylab("% Transactions") + 
+        xlab("Purchase Location") + 
+        ggtitle("Blackwell: Transaction Location") +
+        geom_text(aes(label = percent %>% round(0)), vjust = -0.3)
+g6
+```
+
+We also see that whilst the majority of Blackwell transactions take place online, there is a sizeable proportion that take place in-store.
+
+```{r}
+kable(profPred) %>%
+        kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
+Finally, reviewing the items with the top 5 expected profitability, we see Tablets, PCs, Netbooks and Games Consoles.
+
+### Electronidex
 
