@@ -31,3 +31,68 @@ library(kableExtra)
 #load csv data
 transData <- read.transactions("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", format = "basket", sep = ",")
 prodData <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", header = FALSE)
+```
+
+```{r}
+#rules creation - check if duplicate
+basketRulesItem <- apriori(transData, parameter = list(supp = 0.002, conf = 0.3, minlen = 2))
+
+itemFrame <- data.frame(
+                lhs = labels(lhs(basketRulesItem)),
+                rhs = labels(rhs(basketRulesItem)), 
+                basketRulesItem@quality)
+```
+
+Should Blackwell purchase Electronidex, I would recommend that they do a few things:
+
+* Acquire additional data to allow us to make more informed decisions
+* Review item transaction frequency and consider removing the lowest frequency items, particularly if associated with lift of less than 1. 
+* Remove items which have a lift of <1 in respect of high-value items (e.g. RHS = Desktops/Laptops/Monitors, low lift)
+* Cross-selling through recommendation engine
+
+
+The assumptions that I am using in making these recommendations are:
+
+* Support is a proxy for sales volume (transactional data removes numbers of items purchased)
+* High-value, high-profit items are Desktops, Laptops & Monitors
+
+### Low Frequency Items
+```{r}
+#item frequency - check if duplicate code
+transFreq <- itemFrequency(transData) %>% as.data.frame %>% rownames_to_column()
+colnames(transFreq) <- c("rowNames", "support")
+transFreq.low <- transFreq %>% arrange(desc(support)) %>% tail(10) 
+
+kable(transFreq.low) %>%
+        kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
+The lowest frequency items are shown above. They are not what I would expect to be the high-profit items. I would recommend that if Electronidex is acquired, these type of products are examined to see if they are making a profit and whether the numbers sold justify their being stocked.
+
+
+### High-value items, low lift items
+```{r}
+#low support low lift - none
+itemFrameLow <- itemFrame %>% filter(lift < 1 )
+itemFrameLow
+```
+
+There are no itemsets that occur frequently, with a strong association and with a lift of less than one. This means that there are no items 'dragging' on the high-value item sales.
+
+### Cross-Selling
+```{r}
+#Recommendation Engine examples
+recEng <- itemFrame %>% filter(grepl("iMac,Logitech MK550 Wireless Wave Keyboard and Mouse Combo", itemFrame$lhs))
+
+kable(recEng) %>%
+        kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
+I would advise that we use the transaction data to install a recommendaation engine online. Using the above example we can understand how this could work.
+
+If a customer was purchasing an iMac and a Logitech MK550 Wireless Wave Keyboard and Mouse Combo we could suggest the RHS items as potential purchases. We see that the RHS items occur between 32%-66% when the LHS items are present and that the lift suggests that there is a significant positive association betweeen the purchases of the LHS and RHS.
+
+
+
+
+

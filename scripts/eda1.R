@@ -45,3 +45,12 @@ itemFrameLift
 #good metrics
 itemFramePos <- itemFrame %>% filter(support > 0.025, confidence > 0.40, lift > 1 )
 itemFramePos
+
+#low support low lift - none
+itemFrameLow <- itemFrame %>% filter(lift < 1 )
+itemFrameLow
+
+#Recommendation Engine examples
+recEng <- itemFrame %>% filter(grepl("iMac,Logitech MK550 Wireless Wave Keyboard and Mouse Combo", itemFrame$lhs))
+recEng
+
