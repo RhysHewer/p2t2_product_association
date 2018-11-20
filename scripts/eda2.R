@@ -54,4 +54,28 @@ g6 <- ggplot(onlinePurch, aes(instore, percent)) +
         geom_text(aes(label = percent %>% round(0)), vjust = -0.3)
 g6
 
+#Blackwell items per purchase
+numItems <- blackDemo %>% group_by(items) %>%
+        summarise(num_items = n())
+numItems <- numItems %>% mutate(percent = (num_items/sum(numItems$num_items))*100)
 
+g7 <- ggplot(numItems, aes(items, percent)) +
+        geom_col(fill = "#5c8cdb") +
+        theme_bw() +
+        ylab("% Transactions") + 
+        xlab("Number of Items") + 
+        ggtitle("Blackwell: Number of Items distribution")
+g7
+
+#Electronidex items per purchase
+sizeTrans <- size(transData)
+transTable <- table(sizeTrans) %>% as.data.frame()
+transTable <- transTable %>% mutate(percent = (Freq/sum(transTable$Freq))*100)
+
+g8 <- ggplot(transTable, aes(sizeTrans, percent)) +
+        geom_col(fill = "#519b3b") +
+        theme_bw() +
+        ylab("% Transactions") + 
+        xlab("Number of Items") + 
+        ggtitle("Electronidex: Number of Items distribution")
+g8

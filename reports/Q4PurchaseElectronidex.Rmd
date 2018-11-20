@@ -33,6 +33,9 @@ library(treemap)
 transData <- read.transactions("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", format = "basket", sep = ",")
 prodData <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", header = FALSE)
 
+#Load type data
+load("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/output/typeData.RDS") 
+
 #Load data - Blackwell products info
 blackData <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/existingProductAttributes.csv")
 
@@ -87,6 +90,24 @@ g6
 We also see that whilst the majority of Blackwell transactions take place online, there is a sizeable proportion that take place in-store.
 
 ```{r}
+#Blackwell items per purchase
+numItems <- blackDemo %>% group_by(items) %>%
+        summarise(num_items = n())
+numItems <- numItems %>% mutate(percent = (num_items/sum(numItems$num_items))*100)
+
+g7 <- ggplot(numItems, aes(items, percent)) +
+        geom_col(fill = "#5c8cdb") +
+        theme_bw() +
+        ylab("% Transactions") + 
+        xlab("Number of Items") + 
+        ggtitle("Blackwell: Number of Items distribution")
+g7
+```
+
+Looking at the distribution of the number of items per purchase we see that most transactions involve 2-7 items with no transactions exceeding 8 items.
+
+
+```{r}
 kable(profPred) %>%
         kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
@@ -95,3 +116,34 @@ Finally, reviewing the items with the top 5 expected profitability, we see Table
 
 ### Electronidex
 
+Electronidex is a start-up electronics online retailer.
+```{r}
+electroProducts <- itemFrequency(typeData) %>% as.data.frame() %>% rownames_to_column()
+names(electroProducts) <- c("ProductType", "Support")
+
+
+treemap(electroProducts, index = "ProductType", vSize = "Support", title = "Electronidex Sales Volume (est.) by Product Type")
+```
+
+Using the product-type frequency we can estimate a general picture of the type of products sole by Electronidex and the approximate sales volume.
+
+We see that Desktops, Laptops and Monitors form a large portion of their business.
+
+```{r}
+#Electronidex items per purchase
+sizeTrans <- size(transData)
+transTable <- table(sizeTrans) %>% as.data.frame()
+transTable <- transTable %>% mutate(percent = (Freq/sum(transTable$Freq))*100)
+
+g8 <- ggplot(transTable, aes(sizeTrans, percent)) +
+        geom_col(fill = "#519b3b") +
+        theme_bw() +
+        ylab("% Transactions") + 
+        xlab("Number of Items") + 
+        ggtitle("Electronidex: Number of Items distribution")
+g8
+```
+
+As we only have transaction information, not sales figures, we can only make some general conclusions about numbers of items per transaction. Using the unsatisfactory metric of 1 item sold if the item is present within the transaction we can still draw somw general conclusions.
+
+Looking at the distribution of the estimated number of items per purchase we see that whilst almost 80% of the sales conist of between 1-8 items, 20% exceed this. As we do not have the sales figures, I believe that this underestimates the items-per-transaction figure. The presence of a large number of high-item-number transactions reinforces the picture of Electronidex as a business-to-business organisation.
