@@ -123,4 +123,6 @@ basketFrame <- data.frame(
         basketRules@quality)
 
 
+#demographics
+demoData <- read_csv2("data/Blackwell_Demographic_Data.csv")
 
