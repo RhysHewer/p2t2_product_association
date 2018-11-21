@@ -33,7 +33,7 @@ transData <- read.transactions("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/
 prodData <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", header = FALSE)
 ```
 
-```{r}
+```{r message=FALSE, results = "hide"}
 #rules creation - check if duplicate
 basketRulesItem <- apriori(transData, parameter = list(supp = 0.002, conf = 0.3, minlen = 2))
 
@@ -43,12 +43,13 @@ itemFrame <- data.frame(
                 basketRulesItem@quality)
 ```
 
-Should Blackwell purchase Electronidex, I would recommend that they do a few things:
+Should Blackwell purchase Electronidex, I would recommend that they investigate a few things:
 
 * Acquire additional data to allow us to make more informed decisions
 * Review item transaction frequency and consider removing the lowest frequency items, particularly if associated with lift of less than 1. 
 * Remove items which have a lift of <1 in respect of high-value items (e.g. RHS = Desktops/Laptops/Monitors, low lift)
-* Cross-selling through recommendation engine
+* Cross-selling through recommendation engine.
+* Sales recommendation for iMac-associated products.
 
 
 The assumptions that I am using in making these recommendations are:
@@ -88,11 +89,32 @@ kable(recEng) %>%
         kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
-I would advise that we use the transaction data to install a recommendaation engine online. Using the above example we can understand how this could work.
+I would advise that we use the transaction data to install a recommendation engine online. Using the above example we can understand how this could work.
 
 If a customer was purchasing an iMac and a Logitech MK550 Wireless Wave Keyboard and Mouse Combo we could suggest the RHS items as potential purchases. We see that the RHS items occur between 32%-66% when the LHS items are present and that the lift suggests that there is a significant positive association betweeen the purchases of the LHS and RHS.
 
+### Sales Recommendations
 
+```{r}
+#iMac LHS sales items RHS 
+imacLHS <- itemFrame %>% filter(lhs == "{iMac}")
 
+macBasket <- apriori(transData, parameter = list(supp = 0.001, conf = 0.1, minlen = 2), 
+                     appearance = list (default="rhs",lhs="iMac"), control = list (verbose=F))
 
+macFrame <- data.frame(
+        lhs = labels(lhs(macBasket)),
+        rhs = labels(rhs(macBasket)), 
+        macBasket@quality)
 
+macSale <- macFrame %>% filter(confidence > 0.2, lift > 1)
+
+kable(macSale) %>%
+        kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
+```
+
+The iMac is the best-selling Electronidex product. In order to capitalise on it's success, I would recommend that we use the iMac to try to drive sales of associated products by offering a sale on these.
+
+In the above examples, we see items on the RHS which are driven by the iMac. In all cases, we find these itemsets between 5-8% of the transactions, that these items are found in iMac baskets between 20-30% of the time and that there is a positive association. 
+
+By offering a sale on the associated items, it is hoped that those customers who are purchasing an iMac would be marginally more inclined to also purchase the associated item, thus increasing sales.

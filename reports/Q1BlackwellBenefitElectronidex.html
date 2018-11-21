@@ -256,9 +256,13 @@ library(pdftools)
 library(stringr)
 library(gridExtra)
 library(kableExtra)</code></pre>
-<div id="approach" class="section level3">
-<h3><span class="header-section-number">0.1.1</span> Approach</h3>
-<p>To answer the question of whether Blackwell would benefit from selling any of Electronidex’s products we need a way to compare the products sold between the two companies. By doing this and, additionally, using the transaction data from Electronidex we can see whether there are any relationships between the shared products and the electronidex products which would suggest that Blackwell should stock products they currently do not.</p>
+<div id="approaches" class="section level3">
+<h3><span class="header-section-number">0.1.1</span> Approaches</h3>
+<p>The analysis will first consider whether there are any Electronidex products which should be sold by Blackwell by comparing the product types between the companies.</p>
+<p>The second approach will be to see if within the shared product types there are particularly successful items sold by Electronidex which Blackwell should also be considering.</p>
+<div id="product-type-comparison" class="section level4">
+<h4><span class="header-section-number">0.1.1.1</span> Product-Type Comparison</h4>
+<p>The first approach taken to answer the question of whether Blackwell would benefit from selling any of Electronidex’s products is to compare the products sold between the two companies. By doing this and, additionally, using the transaction data from Electronidex we can see whether there are any relationships between the shared products and the electronidex products which would suggest that Blackwell should stock products they currently do not.</p>
 <p>Ideally, the products would be compared on an item-for-item basis. As this is not available, the products will be compared on a product-type-for-product-type basis.</p>
 <p>The process to be used for this is as follows:</p>
 <ul>
@@ -267,9 +271,8 @@ library(kableExtra)</code></pre>
 <li>Explore positive associations between shared product types (product types stocked both by both Blackwell and Electronidex) and Electronidex-only products.</li>
 <li>For Electronidex-only product types with positive relationships to shared product types, make recommendations about which of these Blackwell should sell.</li>
 </ul>
-</div>
-<div id="data-pre-processing" class="section level3">
-<h3><span class="header-section-number">0.1.2</span> Data pre-processing</h3>
+<div id="generate-electronidex-product-type-association-rules" class="section level5">
+<h5><span class="header-section-number">0.1.1.1.1</span> Generate Electronidex Product-Type Association Rules</h5>
 <pre class="r"><code>#load csv data
 transData &lt;- read.transactions(&quot;C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv&quot;, format = &quot;basket&quot;, sep = &quot;,&quot;)
 prodData &lt;- read.csv(&quot;C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv&quot;, header = FALSE)
@@ -361,57 +364,10 @@ typePrep &lt;- stringReplace(productList)
 
 #CSV creation/re-import
 write.table(typePrep, file = &quot;C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/output/typePrep.csv&quot;, sep=&quot;,&quot;, row.names = FALSE, col.names = FALSE)
-typeData &lt;- read.transactions(&quot;C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/output/typePrep.csv&quot;, format = &quot;basket&quot;, sep=&quot;,&quot;)
-
-summary(typeData)</code></pre>
-<pre><code>## transactions as itemMatrix in sparse format with
-##  9835 rows (elements/itemsets/transactions) and
-##  17 columns (items) and a density of 0.1990251 
-## 
-## most frequent items:
-##  desktop   laptop  monitor    mouse keyboard  (Other) 
-##     5704     5256     3866     2699     2513    13238 
-## 
-## element (itemset/transaction) length distribution:
-## sizes
-##    0    1    2    3    4    5    6    7    8    9   10   11   12   13   14 
-##    2 2369 1927 1584 1271  983  692  470  244  142   72   52   17    6    4 
-## 
-##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-##   0.000   2.000   3.000   3.383   5.000  14.000 
-## 
-## includes extended item information - examples:
-##             labels
-## 1      accessories
-## 2 activeheadphones
-## 3         compcord</code></pre>
-</div>
-<div id="generate-electronidex-association-rules" class="section level3">
-<h3><span class="header-section-number">0.1.3</span> Generate Electronidex Association Rules</h3>
+typeData &lt;- read.transactions(&quot;C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/output/typePrep.csv&quot;, format = &quot;basket&quot;, sep=&quot;,&quot;)</code></pre>
 <pre class="r"><code>### Generate association rules and convert to dataframe for manipulation
-basketRulesType &lt;- apriori(typeData, parameter = list(supp = 0.01, conf = 0.1, minlen = 2))</code></pre>
-<pre><code>## Apriori
-## 
-## Parameter specification:
-##  confidence minval smax arem  aval originalSupport maxtime support minlen
-##         0.1    0.1    1 none FALSE            TRUE       5    0.01      2
-##  maxlen target   ext
-##      10  rules FALSE
-## 
-## Algorithmic control:
-##  filter tree heap memopt load sort verbose
-##     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
-## 
-## Absolute minimum support count: 98 
-## 
-## set item appearances ...[0 item(s)] done [0.00s].
-## set transactions ...[17 item(s), 9835 transaction(s)] done [0.01s].
-## sorting and recoding items ... [17 item(s)] done [0.00s].
-## creating transaction tree ... done [0.01s].
-## checking subsets of size 1 2 3 4 5 6 done [0.01s].
-## writing ... [2871 rule(s)] done [0.00s].
-## creating S4 object  ... done [0.00s].</code></pre>
-<pre class="r"><code>basketFrameType &lt;- data.frame(
+basketRulesType &lt;- apriori(typeData, parameter = list(supp = 0.01, conf = 0.1, minlen = 2))
+basketFrameType &lt;- data.frame(
         lhs = labels(lhs(basketRulesType)),
         rhs = labels(rhs(basketRulesType)), 
         basketRulesType@quality)</code></pre>
@@ -422,8 +378,9 @@ basketRulesType &lt;- apriori(typeData, parameter = list(supp = 0.01, conf = 0.1
 <li>Electronidex-only product types which are associated with purchases of shared product types</li>
 </ul>
 <p>These will be investigated in-turn.</p>
-<div id="shared-product-types-which-are-associated-with-purchases-of-electronidex-only-product-types" class="section level4">
-<h4><span class="header-section-number">0.1.3.1</span> Shared product types which are associated with purchases of Electronidex-only product types</h4>
+</div>
+<div id="shared-product-types-which-are-associated-with-purchases-of-electronidex-only-product-types" class="section level5">
+<h5><span class="header-section-number">0.1.1.1.2</span> Shared product types which are associated with purchases of Electronidex-only product types</h5>
 <pre class="r"><code>##Filter based on LHS shared products and support/confidence/lift metrics summarise these
 sharedProducts &lt;- (&quot;accessories|monitor|laptop|desktop|printer|printink|tablet&quot;)
 notSharedProducts &lt;- (&quot;mouse|keyboard|mousekeyboard|compheadphones|activeheadphones|compcord|speaker|compstand|
@@ -507,9 +464,10 @@ avgLift
 </ul>
 <p>The association rules were then filtered so that rules where only shared product types were contained within the LHS remained. The RHS product types were summarised to give a general picture of the positive association between the shared products and the product types with which they have a positive relationship.</p>
 <p>We see that within the limits we set there are no Electronidex-only product types which are sufficiently positively associated with the shared product types, and by extension, the Blackwell product types.</p>
+<p>As such, there are no Electronidex-only products which would be useful to cross-sell with our current Blackwell products.</p>
 </div>
-<div id="electronidex-only-product-types-which-are-associated-with-purchases-of-shared-product-types" class="section level4">
-<h4><span class="header-section-number">0.1.3.2</span> Electronidex-only product types which are associated with purchases of shared product types</h4>
+<div id="electronidex-only-product-types-which-are-associated-with-purchases-of-shared-product-types" class="section level5">
+<h5><span class="header-section-number">0.1.1.1.3</span> Electronidex-only product types which are associated with purchases of shared product types</h5>
 <pre class="r"><code>basketRight &lt;- basketFrameType %&gt;% filter(!grepl(notSharedProducts, rhs)) %&gt;%
         filter(support &gt; 0.05, confidence &gt; 0.6, lift &gt; 1)</code></pre>
 <p>The association rules are generated with the following limits:</p>
@@ -731,8 +689,136 @@ count
 <p>The directionality of the association is also a concern. Whilst the rules are correlative rather than causative, they do seem to suggest that the less expensive peripherals have a positive impact on whether a desktop is purchased and also that buying a laptop (a product which usually replaces a desktop) has a positive impact on whether a desktop is purchased.</p>
 <p>One would usually expect the purchase of the more expensive primary items to drive the purchase of the less expensive secondary items - Rarely have I purchased a mouse and thought ‘I probably need a desktop with that’ - but this is not the pattern here. Also, if there was this type of relationship, one would expect it to be reciprocated when the desktop is on the LHS of the itemset. As we saw, previously, this was not the case.</p>
 </div>
-<div id="conclusion-would-blackwell-benefit-from-selling-any-of-electronidexs-items" class="section level4">
-<h4><span class="header-section-number">0.1.3.3</span> Conclusion: Would Blackwell benefit from selling any of Electronidex’s items?</h4>
+</div>
+<div id="electronidex-products-within-shared-product-types-group" class="section level4">
+<h4><span class="header-section-number">0.1.1.2</span> Electronidex Products within Shared product-types group</h4>
+<p>Blackwell and Electronidex share the following product types:</p>
+<ul>
+<li>Accessories</li>
+<li>Monitor</li>
+<li>Laptop</li>
+<li>Desktop</li>
+<li>Printers</li>
+<li>Printer Ink</li>
+<li>Computer Tablets</li>
+</ul>
+<p>The second approach to answering the question of whether Blackwell would benefit from selling any of Electronidex’s items is to look at which of Electronidex’s products within the shared categories are most successful and to consider stocking these, if we do not do so already.</p>
+<pre class="r"><code>#Per shared product type (x - product list, y = product name)
+freq &lt;- itemFrequency(transData) %&gt;% as.data.frame %&gt;% rownames_to_column()
+colnames(freq) &lt;- c(&quot;rowNames&quot;, &quot;support&quot;)
+freqShared &lt;- freq
+
+addType &lt;- function(x,y){
+is.x &lt;- freqShared$rowNames %in% x
+freqShared$prodType[is.x] &lt;- y
+freqShared
+}
+
+freqShared &lt;- addType(accessories.list, &quot;accessories&quot;)
+freqShared &lt;- addType(monitor.list, &quot;monitor&quot;)
+freqShared &lt;- addType(desktop.list, &quot;desktop&quot;)
+freqShared &lt;- addType(printers.list, &quot;printer&quot;)
+freqShared &lt;- addType(printink.list, &quot;printink&quot;)
+freqShared &lt;- addType(comptablets.list, &quot;comptablet&quot;)
+
+
+freqShared.filter &lt;- freqShared %&gt;% na.omit() %&gt;% group_by(prodType) %&gt;%
+        top_n(n = 1, wt = support) %&gt;% arrange(prodType)
+
+kable(freqShared.filter) %&gt;%
+        kable_styling(bootstrap_options = &quot;striped&quot;, full_width = F, position = &quot;left&quot;)</code></pre>
+<table class="table table-striped" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+rowNames
+</th>
+<th style="text-align:right;">
+support
+</th>
+<th style="text-align:left;">
+prodType
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Microsoft Office Home and Student 2016
+</td>
+<td style="text-align:right;">
+0.0664972
+</td>
+<td style="text-align:left;">
+accessories
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+iPad Pro
+</td>
+<td style="text-align:right;">
+0.0523640
+</td>
+<td style="text-align:left;">
+comptablet
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+iMac
+</td>
+<td style="text-align:right;">
+0.2561261
+</td>
+<td style="text-align:left;">
+desktop
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ViewSonic Monitor
+</td>
+<td style="text-align:right;">
+0.1103203
+</td>
+<td style="text-align:left;">
+monitor
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Epson Printer
+</td>
+<td style="text-align:right;">
+0.0480935
+</td>
+<td style="text-align:left;">
+printer
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Epson Black Ink
+</td>
+<td style="text-align:right;">
+0.0184037
+</td>
+<td style="text-align:left;">
+printink
+</td>
+</tr>
+</tbody>
+</table>
+<p>Above we see the most frequently occurring products from within each shared product type.</p>
+<p>Blackwell is already considering selling an Apple tablet - based on frequency of presence in the Electronidex transactions the iPad Pro should be considered for this tablet. Blackwell already sells the ViewSonic monitor. The other most-frequent items should be given consideration as to whether these would add value to Blackwell. With additional information we could use our profitability prodictive algorithm to give further analysis.</p>
+<p>The most interesting result, however, is that of the iMac. It occurs in &gt; 25% of Electronidex transactions suggesting it is a hugely popular item. We should give strong consideration to stocking this.</p>
+</div>
+</div>
+<div id="conclusion-would-blackwell-benefit-from-selling-any-of-electronidexs-items" class="section level3">
+<h3><span class="header-section-number">0.1.2</span> Conclusion: Would Blackwell benefit from selling any of Electronidex’s items?</h3>
+<div id="comparative-approach" class="section level4">
+<h4><span class="header-section-number">0.1.2.1</span> Comparative Approach</h4>
 <p>Reviewing the associations generated by the shared products being on the LHS we saw that only the products that we already sell have a positive association with the shared products itemsets. This suggests that we are not missing out on product types, currently being sold by Electronidex, that would likely sell alongside the exisiting shared product types sold by Blackwell.</p>
 <p>We see that there are items that seem to have a positive impact on the sales of product types currently stocked by Blackwell but that these patterns are questionable due to the difference in customer behaviour between our businesses.</p>
 <p>I would recommend a small trial based on the top-frequency products within the product types most associated with a positive impact current Blackwell products.</p>
@@ -746,8 +832,7 @@ count
 <p>We do not have information about sales volume, price or profitablility for the Electronidex products. Frequency of appearance in the basket has been used as a proxy for these.</p>
 <p>The recommended products are:</p>
 <pre class="r"><code>## Most frequent Electronidex products - Mouse &amp; Keyboard combination/Active Headphones/Keyboard/Mouse
-freq &lt;- itemFrequency(transData) %&gt;% as.data.frame %&gt;% rownames_to_column()
-colnames(freq) &lt;- c(&quot;rowNames&quot;, &quot;support&quot;)
+
 
 is.keyboard &lt;- freq$rowNames %in% keyboard.list
 freq$prodType[is.keyboard] &lt;- &quot;keyboard&quot;
@@ -870,6 +955,95 @@ Microsoft Wireless Desktop Keyboard and Mouse
 </td>
 <td style="text-align:left;">
 mousekeyboard
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="shared-product-types-approach" class="section level4">
+<h4><span class="header-section-number">0.1.2.2</span> Shared Product Types Approach:</h4>
+<p>We should consider selling the following items, with particular attention to the iMac.</p>
+<pre class="r"><code>kable(freqShared.filter) %&gt;%
+        kable_styling(bootstrap_options = &quot;striped&quot;, full_width = F, position = &quot;left&quot;)</code></pre>
+<table class="table table-striped" style="width: auto !important; ">
+<thead>
+<tr>
+<th style="text-align:left;">
+rowNames
+</th>
+<th style="text-align:right;">
+support
+</th>
+<th style="text-align:left;">
+prodType
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+Microsoft Office Home and Student 2016
+</td>
+<td style="text-align:right;">
+0.0664972
+</td>
+<td style="text-align:left;">
+accessories
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+iPad Pro
+</td>
+<td style="text-align:right;">
+0.0523640
+</td>
+<td style="text-align:left;">
+comptablet
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+iMac
+</td>
+<td style="text-align:right;">
+0.2561261
+</td>
+<td style="text-align:left;">
+desktop
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ViewSonic Monitor
+</td>
+<td style="text-align:right;">
+0.1103203
+</td>
+<td style="text-align:left;">
+monitor
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Epson Printer
+</td>
+<td style="text-align:right;">
+0.0480935
+</td>
+<td style="text-align:left;">
+printer
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Epson Black Ink
+</td>
+<td style="text-align:right;">
+0.0184037
+</td>
+<td style="text-align:left;">
+printink
 </td>
 </tr>
 </tbody>

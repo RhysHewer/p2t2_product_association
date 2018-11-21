@@ -259,6 +259,8 @@ library(kableExtra)</code></pre>
 <pre class="r"><code>#load csv data
 transData &lt;- read.transactions(&quot;C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv&quot;, format = &quot;basket&quot;, sep = &quot;,&quot;)
 prodData &lt;- read.csv(&quot;C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv&quot;, header = FALSE)</code></pre>
+<div id="electronidex-transaction-data-frequency-patterns-and-summary" class="section level3">
+<h3><span class="header-section-number">0.1.1</span> Electronidex Transaction Data: Frequency Patterns and Summary</h3>
 <pre class="r"><code>#general EDA - high numbers of many-item transactions, mean of 4.83
 summary(transData)</code></pre>
 <pre><code>## transactions as itemMatrix in sparse format with
@@ -395,35 +397,17 @@ Acer Desktop
 <li>There is a reasonably large number of multiple-item transactions</li>
 <li>iMac has the largest frequency by a significant margin.</li>
 </ul>
+</div>
+<div id="electronidex-transaction-data-exploring-positive-relationships" class="section level3">
+<h3><span class="header-section-number">0.1.2</span> Electronidex Transaction Data: Exploring Positive Relationships</h3>
 <pre class="r"><code>#rules creation
-basketRulesItem &lt;- apriori(transData, parameter = list(supp = 0.002, conf = 0.3, minlen = 2))</code></pre>
-<pre><code>## Apriori
-## 
-## Parameter specification:
-##  confidence minval smax arem  aval originalSupport maxtime support minlen
-##         0.3    0.1    1 none FALSE            TRUE       5   0.002      2
-##  maxlen target   ext
-##      10  rules FALSE
-## 
-## Algorithmic control:
-##  filter tree heap memopt load sort verbose
-##     0.1 TRUE TRUE  FALSE TRUE    2    TRUE
-## 
-## Absolute minimum support count: 19 
-## 
-## set item appearances ...[0 item(s)] done [0.00s].
-## set transactions ...[125 item(s), 9835 transaction(s)] done [0.01s].
-## sorting and recoding items ... [125 item(s)] done [0.00s].
-## creating transaction tree ... done [0.01s].
-## checking subsets of size 1 2 3 4 5 6 done [0.03s].
-## writing ... [4118 rule(s)] done [0.00s].
-## creating S4 object  ... done [0.01s].</code></pre>
-<pre class="r"><code>itemFrame &lt;- data.frame(
+basketRulesItem &lt;- apriori(transData, parameter = list(supp = 0.002, conf = 0.3, minlen = 2))
+
+itemFrame &lt;- data.frame(
                 lhs = labels(lhs(basketRulesItem)),
                 rhs = labels(rhs(basketRulesItem)), 
-                basketRulesItem@quality)
-
-#good metrics
+                basketRulesItem@quality)</code></pre>
+<pre class="r"><code>#good metrics
 itemFramePos &lt;- itemFrame %&gt;% filter(support &gt; 0.025, confidence &gt; 0.40, lift &gt; 1 )
 
 kable(itemFramePos) %&gt;%
@@ -614,12 +598,13 @@ count
 </tr>
 </tbody>
 </table>
-<p>Creating the association rules and examining itemsets with positive association rules, an intersting picture does begin to emerge:</p>
+<p>Creating the association rules and examining itemsets with positive association rules, an interesting picture does begin to emerge:</p>
 <ul>
 <li>iMac is positively associated with monitors, even though it has a built-in display</li>
 <li>There are multiple cross-platform baskets (Apple v Windows) which is unusual as consumers are usually committed to one platform</li>
 <li>This is a pattern more reflective of a business-to-business organisation than a business-to-consumer one.</li>
 </ul>
+</div>
 </div>
 
 

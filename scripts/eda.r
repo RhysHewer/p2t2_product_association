@@ -150,3 +150,24 @@ freq <- freq %>% filter(!str_detect(rowNames, "Apple"))
 freq.filter <- freq %>% na.omit() %>% group_by(prodType) %>%
         top_n(n = 2, wt = support) %>% arrange(prodType)
 freq.filter
+
+#Per shared product type (x - product list, y = product name)
+addType <- function(x,y){
+is.x <- freq$rowNames %in% x
+freq$prodType[is.x] <- y
+freq
+}
+
+freqShared <- addType(accessories.list, "accessories")
+freqShared <- addType(monitor.list, "monitor")
+freqShared <- addType(desktop.list, "desktop")
+freqShared <- addType(printers.list, "printer")
+freqShared <- addType(printink.list, "printink")
+freqShared <- addType(comptablets.list, "comptablet")
+
+
+freqShared.filter <- freq %>% na.omit() %>% group_by(prodType) %>%
+        top_n(n = 1, wt = support) %>% arrange(prodType)
+freqShared.filter
+
+##Electronidex rule distribution

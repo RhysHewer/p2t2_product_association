@@ -54,3 +54,23 @@ itemFrameLow
 recEng <- itemFrame %>% filter(grepl("iMac,Logitech MK550 Wireless Wave Keyboard and Mouse Combo", itemFrame$lhs))
 recEng
 
+#iMac LHS sales items RHS 
+imacLHS <- itemFrame %>% filter(lhs == "{iMac}")
+
+macBasket <- apriori(transData, parameter = list(supp = 0.001, conf = 0.1, minlen = 2), 
+                     appearance = list (default="rhs",lhs="iMac"), control = list (verbose=F))
+macBasket
+inspect(macBasket)
+
+macFrame <- data.frame(
+        lhs = labels(lhs(macBasket)),
+        rhs = labels(rhs(macBasket)), 
+        macBasket@quality)
+
+macSale <- macFrame %>% filter(confidence > 0.2, lift > 1)
+macSale
+
+
+###Electronidex rule distribution
+plot(basketRulesItem)
+ruleExplorer(basketRulesItem)

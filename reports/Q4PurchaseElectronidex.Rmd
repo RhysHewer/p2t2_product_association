@@ -28,7 +28,7 @@ library(kableExtra)
 library(treemap)
 ```
 
-```{r warning=FALSE}
+```{r message=FALSE, results = "hide", warning=FALSE}
 #load csv data
 transData <- read.transactions("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", format = "basket", sep = ",")
 prodData <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", header = FALSE)
@@ -49,11 +49,11 @@ profPred <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/
 
 Before making a recommendation as to whether to purchase Electronidex I think it would be beneficial to give an overview of both companies.
 
-### Blackwell Electronics
+## Blackwell Electronics
 
 Blackwell Electronics is a successful consumer electronics retailer with over 30 stores in the southeastern United States and who last year launched an eCommerce website.
 
-#### Sales & Profit
+### Sales & Profit
 ```{r}
 blackData <- blackData %>% filter(Product.Type != "Extended Warranty") %>% 
         mutate(profit = (Volume * Price * Profit.margin)/10^3, unitProfit = Price * Profit.margin)
@@ -70,7 +70,7 @@ treemap(blackProfit, index = "Product.Type", vSize = "absProfit", title = "Black
 
 We see that in terms of sales volume, Accessories and Game Consoles make up the majority of Blackwell's Products. Looking at the profit, however, we see that it is Games Consoles and Displays that make up a substantial part of Blackwell's profits.
 
-#### Transaction Location
+### Transaction Location
 
 ```{r}
 #Blackwell instore v online 
@@ -92,7 +92,7 @@ g6
 
 We also see that whilst the majority of Blackwell transactions take place online, there is a sizeable proportion that take place in-store.
 
-#### Items per Transaction
+### Items per Transaction
 ```{r}
 #Blackwell items per purchase
 numItems <- blackDemo %>% group_by(items) %>%
@@ -110,7 +110,7 @@ g7
 
 Looking at the distribution of the number of items per purchase we see that most transactions involve 2-7 items with no transactions exceeding 8 items.
 
-#### Expected Profitability
+### Expected Profitability
 
 ```{r}
 kable(profPred) %>%
@@ -119,11 +119,11 @@ kable(profPred) %>%
 
 Finally, reviewing the items with the top 5 expected profitability, we see Tablets, PCs, Netbooks and Games Consoles.
 
-### Electronidex
+## Electronidex
 
 Electronidex is a start-up electronics online retailer.
 
-#### Estimated Sales Volume
+### Estimated Sales Volume
 ```{r}
 electroProducts <- itemFrequency(typeData) %>% as.data.frame() %>% rownames_to_column()
 names(electroProducts) <- c("ProductType", "Support")
@@ -136,7 +136,7 @@ Using the product-type frequency we can estimate a general picture of the type o
 
 We see that Desktops, Laptops and Monitors form a large portion of their business.
 
-#### Estimated Items per Transaction
+### Estimated Items per Transaction
 ```{r}
 #Electronidex items per purchase
 sizeTrans <- size(transData)
@@ -156,18 +156,22 @@ As we only have transaction information, not sales figures, we can only make som
 
 Looking at the distribution of the estimated number of items per purchase we see that whilst almost 80% of the sales conist of between 1-8 items, 20% exceed this. As we do not have the sales figures, I believe that this underestimates the items-per-transaction figure. The presence of a large number of high-item-number transactions reinforces the picture of Electronidex as a business-to-business organisation.
 
-### Organisational Conclusions
+## Organisational Conclusions
 
 Blackwell Electronics is a consumer electronics retailer with online and in-store presence. Blackwell services mostly small-basket transactions and generates profitability through displays and games consoles. Future profitable items are expected to be tablets, PCs, netbooks and games consoles.
 
 Electronidex is an online-only business-to-business startup, potentially a distributor, who service larger item-number baskets. Their top selling product types are desktops, laptops and monitors.
 
-### Acquisition Recommendation
+## Blackwell SWOT Analysis
 
-If Blackwell were to acquire Electronidex it would represent a move into the B2B/Distribution side of the electronic retail business. This would be an advantageous move if doing so allowed Blackwell to purchase stock more easily and inexpensively or if Blackwell wanted to purchase stock which is currently difficult to acquire.
+![](C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/output/swot.png)
 
-The stock sold by Electronidex has some overlap to that sold by Blackwell but purchasing it would mean taking over stocks that we do not currently sell. Our analysis has shown that the non-shared stock offered by Electronidex does not complement the products we currently sell.
+Blackwells biggest problems stem from being a small retailer squeezed betweeen large retailers and small, niche retailers and having a limited and generic product offering.
 
+To combat this, Blackwell should leverage it's strengths and look to move into newer markets using data analytics and mobile commerce as key tools to do so.
 
+My opinion is that the vision for Blackwell should be one of an organisation focussing on a younger consumer base (13-40), stocking the newest products and using and expanding its analytics capabilities to be more nimble in the marketplace. This would allow us to build on our already profitable products of games consoles and monitors.
 
+Electronidex is a distribution/B2B organisation and acquiring this could give us economies of scale and allow us to expand deeper into the supply chain side of the business. Choosing to go large - in competition with the retail giants - versus to go niche would not be in line with where I think our strategic goals should be. Our analysis has also cast doubt that any synergy would be delivered in respect of mutually-reinforcing product types.
 
+My recommendation is that Blackwell should not aqcuire Electronidex.

@@ -33,11 +33,10 @@ transData <- read.transactions("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/
 prodData <- read.csv("C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Project 2/Task 4/data/ElectronidexTransactions2017.csv", header = FALSE)
 ```
 
-
+### Electronidex Transaction Data: Frequency Patterns and Summary
 ```{r}
 #general EDA - high numbers of many-item transactions, mean of 4.83
 summary(transData)
-summary(itemFrequency(transData))
 
 #item frequency - nothing interesting here
 transFreq <- itemFrequency(transData) %>% as.data.frame %>% rownames_to_column()
@@ -51,10 +50,10 @@ kable(transFreq.filter) %>%
 Reviewing the summary of the transactions there is nothing that is particularly striking. There are a couple of interesting patterns to note, however:
 
 * There is a reasonably large number of multiple-item transactions
-* iMac has the largest frequency by a significant margin.
+* iMac has the largest frequency (support) by a significant margin.
 
-
-```{r}
+### Electronidex Transaction Data: Exploring Positive Relationships
+```{r message=FALSE, results = "hide"}
 #rules creation
 basketRulesItem <- apriori(transData, parameter = list(supp = 0.002, conf = 0.3, minlen = 2))
 
@@ -62,7 +61,8 @@ itemFrame <- data.frame(
                 lhs = labels(lhs(basketRulesItem)),
                 rhs = labels(rhs(basketRulesItem)), 
                 basketRulesItem@quality)
-
+```
+```{r}
 #good metrics
 itemFramePos <- itemFrame %>% filter(support > 0.025, confidence > 0.40, lift > 1 )
 
@@ -70,9 +70,11 @@ kable(itemFramePos) %>%
         kable_styling(bootstrap_options = "striped", full_width = F, position = "left")
 ```
 
-Creating the association rules and examining itemsets with positive association rules, an interesting picture does begin to emerge:
+Creating the association rules and examining itemsets with the most positive association rules, an interesting picture does begin to emerge:
 
 * iMac is positively associated with monitors, even though it has a built-in display
 * There are multiple cross-platform baskets (Apple v Windows) which is unusual as consumers are usually committed to one platform
 * This is a pattern more reflective of a business-to-business organisation than a business-to-consumer one.
+
+
 
