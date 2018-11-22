@@ -305,7 +305,7 @@ profPred &lt;- read.csv(&quot;C:/Users/rhysh/Google Drive/Data Science/Ubiqum/Pr
 </div>
 <div id="method" class="section level2">
 <h2><span class="header-section-number">1.2</span> Method</h2>
-<p>We were given 30 days of Electronidex’s transactions and combined this with the output of our previous analyses. From this data we performed a Market Basket Analysis to look for relationships between products and product types both within Electronidex and between them and Blackwell.</p>
+<p>We were given 30 days of Electronidex’s transactions and combined this with the output of our previous demographic and profitability analyses. From this data we performed a Market Basket Analysis to look for relationships between products and product types both within Electronidex and between them and Blackwell.</p>
 <p>In addition we performed some basic summary analysis on both businesses to allow comparison.</p>
 </div>
 <div id="findings" class="section level2">
@@ -352,23 +352,28 @@ text3 &lt;- gsub(&quot;\r&quot;, &quot;&quot;, text2)
 prod.list &lt;- text3 %&gt;% as.data.frame()
 
 ##create product type lists
-laptop.list &lt;- prod.list[2:11,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-desktop.list &lt;- prod.list[13:21,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-monitor.list &lt;- prod.list[23:32,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-mice.list &lt;- prod.list[34:43,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-keyboard.list &lt;- prod.list[45:53,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-mousekeyboard.list &lt;- prod.list[55:63,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-compheadphones.list &lt;- prod.list[64:74,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-activeheadphones.list &lt;- prod.list[76:81,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-compcords.list &lt;- prod.list[83:91,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-accessories.list &lt;- prod.list[93:96,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-speakers.list &lt;- prod.list[98:106,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-printers.list &lt;- prod.list[108:112,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-printink.list &lt;- prod.list[114:118,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-compstands.list &lt;- prod.list[120:124,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-comptablets.list &lt;- prod.list[126:130,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-extdrives.list &lt;- prod.list[132:136,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
-smarthome.list &lt;- prod.list[138:142,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
+#x = row numbers of items, y - object name
+listName &lt;- function(x){
+        list.name &lt;- prod.list[x,1] %&gt;% as.character() %&gt;% trimws(&quot;l&quot;)
+}
+
+laptop.list &lt;- listName(2:11)
+desktop.list &lt;- listName(13:21)
+monitor.list &lt;- listName(23:32)
+mice.list &lt;- listName(34:43)
+keyboard.list &lt;- listName(45:53)
+mousekeyboard.list &lt;- listName(55:63)
+compheadphones.list &lt;- listName(64:74)
+activeheadphones.list &lt;- listName(76:81)
+compcords.list &lt;- listName(83:91)
+accessories.list &lt;- listName(93:96)
+speakers.list &lt;- listName(98:106)
+printers.list &lt;- listName(108:112)
+printink.list &lt;- listName(114:118)
+compstands.list &lt;- listName(120:124)
+comptablets.list &lt;- listName(126:130)
+extdrives.list &lt;- listName(132:136)
+smarthome.list &lt;- listName(138:142)
 
 ##additional products added to lists
 laptop.list &lt;- c(laptop.list, &quot;Alienware Laptop&quot;, &quot;Apple MacBook Pro&quot;, &quot;Eluktronics Pro Gaming Laptop&quot;, &quot;ASUS Chromebook&quot;)
@@ -2187,6 +2192,33 @@ g8</code></pre>
 </div>
 <div id="conclusion" class="section level1">
 <h1><span class="header-section-number">6</span> <strong>Conclusion</strong></h1>
+<p>The key findings were:</p>
+<ul>
+<li>Electronidex is a B2B/distribution organisation and their customer behaviour is markedly divergent from ours.</li>
+<li>There is a negligble boosting effect between the products they stock and ours.</li>
+<li>Their top-selling item is an iMac and we should investigate selling this. There are opportunities for us to experiment with stocking some of their products to explore if they have an impact on item sales.</li>
+<li>Should we acquire Electronidex there are a nnumber of strategies we could take to try to fine-tune sales.</li>
+</ul>
+<div id="acquisition-recommendation" class="section level2">
+<h2><span class="header-section-number">6.1</span> Acquisition Recommendation</h2>
+<p>My recommendation is that Blackwell should not aqcuire Electronidex.</p>
+</div>
+<div id="analysis-recommendations" class="section level2">
+<h2><span class="header-section-number">6.2</span> Analysis Recommendations</h2>
+<p>To allow a more meaningful analysis based on actual numbers of items and profitability, more data would be needed from Electronidex.</p>
+<p>The data we have available for the analysis was:</p>
+<ul>
+<li>Electronidex transactions - days</li>
+<li>Blackwell demographic information</li>
+<li>Blackwell product-type sales information</li>
+</ul>
+<p>To allow us to perform a more in-depth analysis of a simmilar nature in the future I would recommend that we supplement this data with:</p>
+<ul>
+<li>Electronidex product sales information (profit margin, sales figures, price)</li>
+<li>Specific Blackwell item sales information (name/brand of product) for a listed period (month/year)</li>
+<li>Blackwell transaction data for a listed period (month/year)</li>
+</ul>
+</div>
 </div>
 
 

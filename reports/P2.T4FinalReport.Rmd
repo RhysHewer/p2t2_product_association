@@ -129,23 +129,28 @@ text3 <- gsub("\r", "", text2)
 prod.list <- text3 %>% as.data.frame()
 
 ##create product type lists
-laptop.list <- prod.list[2:11,1] %>% as.character() %>% trimws("l")
-desktop.list <- prod.list[13:21,1] %>% as.character() %>% trimws("l")
-monitor.list <- prod.list[23:32,1] %>% as.character() %>% trimws("l")
-mice.list <- prod.list[34:43,1] %>% as.character() %>% trimws("l")
-keyboard.list <- prod.list[45:53,1] %>% as.character() %>% trimws("l")
-mousekeyboard.list <- prod.list[55:63,1] %>% as.character() %>% trimws("l")
-compheadphones.list <- prod.list[64:74,1] %>% as.character() %>% trimws("l")
-activeheadphones.list <- prod.list[76:81,1] %>% as.character() %>% trimws("l")
-compcords.list <- prod.list[83:91,1] %>% as.character() %>% trimws("l")
-accessories.list <- prod.list[93:96,1] %>% as.character() %>% trimws("l")
-speakers.list <- prod.list[98:106,1] %>% as.character() %>% trimws("l")
-printers.list <- prod.list[108:112,1] %>% as.character() %>% trimws("l")
-printink.list <- prod.list[114:118,1] %>% as.character() %>% trimws("l")
-compstands.list <- prod.list[120:124,1] %>% as.character() %>% trimws("l")
-comptablets.list <- prod.list[126:130,1] %>% as.character() %>% trimws("l")
-extdrives.list <- prod.list[132:136,1] %>% as.character() %>% trimws("l")
-smarthome.list <- prod.list[138:142,1] %>% as.character() %>% trimws("l")
+#x = row numbers of items, y - object name
+listName <- function(x){
+        list.name <- prod.list[x,1] %>% as.character() %>% trimws("l")
+}
+
+laptop.list <- listName(2:11)
+desktop.list <- listName(13:21)
+monitor.list <- listName(23:32)
+mice.list <- listName(34:43)
+keyboard.list <- listName(45:53)
+mousekeyboard.list <- listName(55:63)
+compheadphones.list <- listName(64:74)
+activeheadphones.list <- listName(76:81)
+compcords.list <- listName(83:91)
+accessories.list <- listName(93:96)
+speakers.list <- listName(98:106)
+printers.list <- listName(108:112)
+printink.list <- listName(114:118)
+compstands.list <- listName(120:124)
+comptablets.list <- listName(126:130)
+extdrives.list <- listName(132:136)
+smarthome.list <- listName(138:142)
 
 ##additional products added to lists
 laptop.list <- c(laptop.list, "Alienware Laptop", "Apple MacBook Pro", "Eluktronics Pro Gaming Laptop", "ASUS Chromebook")
@@ -672,6 +677,30 @@ My recommendation is that Blackwell should not aqcuire Electronidex.
 
 # **Conclusion** 
 
-## Recommendations
+The key findings were:
+
+* Electronidex is a B2B/distribution organisation and their customer behaviour is markedly divergent from ours.
+* There is a negligble boosting effect between the products they stock and ours.
+* Their top-selling item is an iMac and we should investigate selling this.
+There are opportunities for us to experiment with stocking some of their products to explore if they have an impact on item sales.
+* Should we acquire Electronidex there are a nnumber of strategies we could take to try to fine-tune sales.
+
+## Acquisition Recommendation
+
+My recommendation is that Blackwell should not aqcuire Electronidex.
+
+## Analysis Recommendations
 
 To allow a more meaningful analysis based on actual numbers of items and profitability, more data would be needed from Electronidex. 
+
+The data we have available for the analysis was:
+
+* Electronidex transactions -  days
+* Blackwell demographic information
+* Blackwell product-type sales information
+
+To allow us to perform a more in-depth analysis of a simmilar nature in the future I would recommend that we supplement this data with:
+
+* Electronidex product sales information (profit margin, sales figures, price)
+* Specific Blackwell item sales information (name/brand of product) for a listed period (month/year)
+* Blackwell transaction data for a listed period (month/year)
